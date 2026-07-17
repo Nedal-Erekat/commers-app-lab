@@ -10,9 +10,9 @@ A practice commerce platform built specifically to gain hands-on, interview-read
 
 **Source of truth for scope and sequencing:** [ROADMAP.md](ROADMAP.md). Always check it before starting work — build the current milestone, not ahead of it. Update its status column as milestones complete.
 
-**Current milestone:** 7 (AI shopping assistant) — done, as far as this sandbox allows. `services/Assistant` is a real MCP client + agentic tool-use loop over the Anthropic Messages API, with an Angular chat widget. Verified locally with a manually-minted JWT: auth, MCP tool discovery, and the Anthropic request itself all work end-to-end (confirmed by a well-formed `authentication_error` from the real API) — the only thing not verified is an actual Claude reply, since this environment has no `ANTHROPIC_API_KEY`. Next up: milestone 8 (Angular admin portal). Milestone 5's Azure IaC is still unverified against real Azure — see its note below.
+**Current milestone:** 8 (Angular admin portal) — done. A second Angular app (`frontend/projects/admin`, served on port 4300) manages products (CRUD) and orders (view all, update status) across all customers, gated by an `Admin` role checked both client-side (route guard reads the JWT's role claim) and server-side (`[Authorize(Roles = "Admin")]` on new Catalog/Order endpoints). Identity seeds a dev admin account (`admin@commerce-app-lab.local` / `Admin123!`) on startup. Catalog previously had no JWT auth at all — that was added as part of this milestone, mirroring Order.Api's setup. Next up: milestone 9 (load testing, observability, teardown, write-up). Milestone 5's Azure IaC is still unverified against real Azure — see its note below.
 
-Milestones 6 and 7 (MCP + AI) were built on the `feature/ai-mcp` branch, not `main` — `main` stops at milestone 5. Keep working on `feature/ai-mcp` until told to merge.
+Milestones 6 and 7 (MCP + AI) were built on `feature/ai-mcp` and merged into `main` via fast-forward. All work, including milestone 8, now happens directly on `main`.
 
 The Angular storefront now calls everything through the Gateway (`http://localhost:5000`) instead of individual service ports — `environment.ts`/`environment.development.ts` expose a single `apiUrl`. Keep it that way; don't reintroduce per-service URLs in the frontend.
 
@@ -80,6 +80,8 @@ Milestone 5's Bicep (`infra/bicep/main.bicep`) has never been run against real A
 `docker-compose.yml` requires `ANTHROPIC_API_KEY` in the environment (`${ANTHROPIC_API_KEY:?...}`) — `docker-compose up` fails fast with a clear message if it's unset, rather than starting a broken assistant service.
 
 To test a JWT-protected endpoint without a live Identity service/SQL Server (useful when SQL Server isn't available): mint an HS256 token by hand with the same dev signing key every service shares (`appsettings.json`'s `Jwt:Key`) — standard header/payload/HMAC-SHA256 base64url, no library needed for HS256. This is how milestone 7's Assistant service got exercised end-to-end without Identity running.
+
+Role-based access follows the same shared-JWT model: `Identity.Api/Program.cs` seeds both roles (`Customer`, `Admin`) and a dev admin user at startup; `TokenService` puts every role the user has into `ClaimTypes.Role` claims on the JWT. Any downstream service just needs `[Authorize(Roles = "Admin")]` — no cross-service role lookup. The Angular admin app's route guard reads the same `roles` array off the login response (stored alongside the token) rather than decoding the JWT client-side.
 
 ---
 

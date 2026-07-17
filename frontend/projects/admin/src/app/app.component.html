@@ -1,5 +1,14 @@
-<main>
+<header class="admin-nav">
   <h1>Commerce App Lab — Admin</h1>
-  <p>Scaffolded in milestone 0. Product/order management ships in milestone 8.</p>
+  @if (authService.isAuthenticated()) {
+    <nav>
+      <a routerLink="/products">Products</a>
+      <a routerLink="/orders">Orders</a>
+      <button type="button" (click)="logout()">Log out</button>
+    </nav>
+  }
+</header>
+
+<main>
   <router-outlet />
 </main>

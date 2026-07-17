@@ -8,4 +8,7 @@ public interface IProductRepository
     Task<IReadOnlyList<Product>> SearchByNameAsync(string term);
     Task<Product?> GetByIdAsync(int id);
     Task<bool> DecrementStockAsync(int id, int quantity);
+    Task<Product> CreateAsync(Product product);
+    Task<Product?> UpdateAsync(int id, Product product);
+    Task<bool> DeleteAsync(int id);
 }

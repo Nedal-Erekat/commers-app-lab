@@ -37,6 +37,28 @@ public class OrdersController : ControllerBase
         return order is null ? NotFound() : Ok(order);
     }
 
+    [Authorize(Roles = "Admin")]
+    [HttpGet("admin/all")]
+    public async Task<IActionResult> GetAllOrders()
+    {
+        return Ok(await _orderService.GetAllOrdersAsync());
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPatch("{id:guid}/status")]
+    public async Task<IActionResult> UpdateStatus(Guid id, UpdateOrderStatusRequest request)
+    {
+        try
+        {
+            var order = await _orderService.UpdateOrderStatusAsync(id, request.Status);
+            return order is null ? NotFound() : Ok(order);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
     private string BearerToken
@@ -49,3 +71,5 @@ public class OrdersController : ControllerBase
         }
     }
 }
+
+public record UpdateOrderStatusRequest(string Status);

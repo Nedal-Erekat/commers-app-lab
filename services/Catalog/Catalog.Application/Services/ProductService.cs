@@ -33,4 +33,32 @@ public class ProductService
     }
 
     public Task<bool> DecrementStockAsync(int id, int quantity) => _repository.DecrementStockAsync(id, quantity);
+
+    public async Task<ProductDto> CreateProductAsync(CreateProductRequest request)
+    {
+        var product = new Product
+        {
+            Name = request.Name,
+            Category = request.Category,
+            Price = request.Price,
+            Stock = request.Stock
+        };
+        var created = await _repository.CreateAsync(product);
+        return new ProductDto(created.Id, created.Name, created.Category, created.Price, created.Stock, created.CreatedAt);
+    }
+
+    public async Task<ProductDto?> UpdateProductAsync(int id, UpdateProductRequest request)
+    {
+        var product = new Product
+        {
+            Name = request.Name,
+            Category = request.Category,
+            Price = request.Price,
+            Stock = request.Stock
+        };
+        var updated = await _repository.UpdateAsync(id, product);
+        return updated is null ? null : new ProductDto(updated.Id, updated.Name, updated.Category, updated.Price, updated.Stock, updated.CreatedAt);
+    }
+
+    public Task<bool> DeleteProductAsync(int id) => _repository.DeleteAsync(id);
 }

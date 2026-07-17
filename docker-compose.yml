@@ -32,6 +32,9 @@ services:
     environment:
       - ConnectionStrings__DefaultConnection=Server=db,1433;Database=CatalogDb;User Id=sa;Password=YourPassword123;TrustServerCertificate=True
       - ConnectionStrings__Redis=redis:6379
+      - Jwt__Key=NrQlrM3IEtEuIi0Hjw4P6+5GMAoIIMgGHQNLsd+OjDRiYu39VkUVgOOsvsvYYTJ/
+      - Jwt__Issuer=commerce-app-lab-identity
+      - Jwt__Audience=commerce-app-lab
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "5001:8080"

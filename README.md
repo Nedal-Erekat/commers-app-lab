@@ -45,7 +45,7 @@ commerce-app-lab/
 
 ## Status
 
-Milestone 7 is done: an AI shopping assistant ([services/Assistant](services/Assistant/README.md)) — an MCP *client* that calls the milestone 6 MCP server, lets Claude decide which tool to invoke for a given message, executes it, and loops until Claude has a final answer. A floating chat widget in the Angular storefront talks to it. Verified as far as this sandbox allows: ran the assistant and MCP server together locally with a real (locally-minted) JWT and confirmed the whole pipeline — auth, tool discovery, request building — reaches the real Anthropic API and gets a well-formed response back, failing only on the missing API key. See [services/Assistant/README.md](services/Assistant/README.md) for exactly what was and wasn't tested, and [ROADMAP.md](ROADMAP.md) for what's next. (Milestone 5's Azure deployment still hasn't been run against real Azure — see [infra/bicep/README.md](infra/bicep/README.md).)
+Milestone 8 is done: an Angular admin portal (`frontend/projects/admin`) for managing products (create/edit/delete) and orders (view all, update status) across all customers. Access is role-gated — an `Admin` role (seeded automatically on Identity startup as `admin@commerce-app-lab.local` / `Admin123!` for local/dev use) is required both client-side (route guard checks the JWT's role claim) and server-side (`[Authorize(Roles = "Admin")]` on the new Catalog/Order endpoints). Catalog needed JWT auth wired in for the first time — it previously had none. Verified: `dotnet test` across Catalog/Order/Identity (JWT auth, product CRUD, admin order listing/status transitions), and Playwright against the admin app's dev server confirming the auth guard redirects unauthenticated visitors to `/login` and renders the Products/Orders views once a valid admin session exists. See [ROADMAP.md](ROADMAP.md) for what's next. (Milestone 5's Azure deployment still hasn't been run against real Azure — see [infra/bicep/README.md](infra/bicep/README.md).)
 
 ## Getting started
 
@@ -63,10 +63,11 @@ Everything goes through the gateway at `http://localhost:5000`. Individual servi
 ```bash
 cd frontend
 npm install
-npx ng serve storefront   # http://localhost:4200, or: npx ng serve admin
+npx ng serve storefront   # http://localhost:4200
+npx ng serve admin        # http://localhost:4300
 ```
 
-The chat widget appears bottom-right once you're logged in.
+The chat widget appears bottom-right once you're logged in. Log into the admin app with the seeded admin account: `admin@commerce-app-lab.local` / `Admin123!`.
 
 Each backend service documents its own run/migration instructions in its own README: [Catalog](services/Catalog/README.md), [Identity](services/Identity/README.md), [Cart](services/Cart/README.md), [Order](services/Order/README.md), [OrderProcessing](services/OrderProcessing/README.md), [Gateway](services/Gateway/README.md), [Mcp](services/Mcp/README.md), [Assistant](services/Assistant/README.md).
 

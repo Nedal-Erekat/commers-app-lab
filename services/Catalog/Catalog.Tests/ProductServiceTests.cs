@@ -1,3 +1,4 @@
+using Catalog.Application.DTOs;
 using Catalog.Application.Services;
 using Catalog.Domain.Entities;
 using Catalog.Domain.Interfaces;
@@ -101,5 +102,52 @@ public class ProductServiceTests
         await _sut.GetProductsAsync(1, 10, "Tools");
 
         _repoMock.Verify(r => r.GetPagedAsync(1, 10, "Tools"), Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateProductAsync_DelegatesToRepository_AndReturnsDto()
+    {
+        _repoMock.Setup(r => r.CreateAsync(It.IsAny<Product>()))
+            .ReturnsAsync((Product p) => { p.Id = 1; p.CreatedAt = new DateTime(2024, 1, 15); return p; });
+
+        var result = await _sut.CreateProductAsync(new CreateProductRequest("Widget", "Tools", 9.99m, 5));
+
+        Assert.Equal(1, result.Id);
+        Assert.Equal("Widget", result.Name);
+        Assert.Equal(5, result.Stock);
+        _repoMock.Verify(r => r.CreateAsync(It.Is<Product>(p => p.Name == "Widget" && p.Category == "Tools")), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateProductAsync_ReturnsNull_WhenProductNotFound()
+    {
+        _repoMock.Setup(r => r.UpdateAsync(99, It.IsAny<Product>())).ReturnsAsync((Product?)null);
+
+        var result = await _sut.UpdateProductAsync(99, new UpdateProductRequest("Widget", "Tools", 9.99m, 5));
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task UpdateProductAsync_ReturnsDto_WhenFound()
+    {
+        _repoMock.Setup(r => r.UpdateAsync(1, It.IsAny<Product>()))
+            .ReturnsAsync(new Product { Id = 1, Name = "Widget", Category = "Tools", Price = 12.5m, Stock = 3, CreatedAt = new DateTime(2024, 1, 15) });
+
+        var result = await _sut.UpdateProductAsync(1, new UpdateProductRequest("Widget", "Tools", 12.5m, 3));
+
+        Assert.NotNull(result);
+        Assert.Equal(12.5m, result!.Price);
+    }
+
+    [Fact]
+    public async Task DeleteProductAsync_DelegatesToRepository()
+    {
+        _repoMock.Setup(r => r.DeleteAsync(1)).ReturnsAsync(true);
+
+        var result = await _sut.DeleteProductAsync(1);
+
+        Assert.True(result);
+        _repoMock.Verify(r => r.DeleteAsync(1), Times.Once);
     }
 }

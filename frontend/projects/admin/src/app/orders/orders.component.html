@@ -1,0 +1,36 @@
+<section>
+  <h2>Orders</h2>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  <table>
+    <thead>
+      <tr>
+        <th>Order</th>
+        <th>Customer</th>
+        <th>Total</th>
+        <th>Placed</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (order of orders(); track order.id) {
+        <tr>
+          <td>{{ order.id }}</td>
+          <td>{{ order.userId }}</td>
+          <td>{{ order.totalAmount | number: '1.2-2' }}</td>
+          <td>{{ order.createdAt | date: 'short' }}</td>
+          <td>
+            <select [value]="order.status" (change)="updateStatus(order, $any($event.target).value)">
+              @for (status of statuses; track status) {
+                <option [value]="status">{{ status }}</option>
+              }
+            </select>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</section>

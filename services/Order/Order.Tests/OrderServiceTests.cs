@@ -92,4 +92,50 @@ public class OrderServiceTests
         Assert.NotNull(result);
         Assert.Equal(order.Id, result!.Id);
     }
+
+    [Fact]
+    public async Task GetAllOrdersAsync_ReturnsOrders_AcrossAllUsers()
+    {
+        var orders = new List<CustomerOrder>
+        {
+            new() { Id = Guid.NewGuid(), UserId = "user-1", CreatedAt = DateTime.UtcNow },
+            new() { Id = Guid.NewGuid(), UserId = "user-2", CreatedAt = DateTime.UtcNow }
+        };
+        _repoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(orders);
+
+        var result = await _sut.GetAllOrdersAsync();
+
+        Assert.Equal(2, result.Count);
+        Assert.Contains(result, o => o.UserId == "user-1");
+        Assert.Contains(result, o => o.UserId == "user-2");
+    }
+
+    [Fact]
+    public async Task UpdateOrderStatusAsync_ThrowsArgumentException_ForUnknownStatus()
+    {
+        await Assert.ThrowsAsync<ArgumentException>(() => _sut.UpdateOrderStatusAsync(Guid.NewGuid(), "Bogus"));
+    }
+
+    [Fact]
+    public async Task UpdateOrderStatusAsync_ReturnsNull_WhenOrderNotFound()
+    {
+        _repoMock.Setup(r => r.UpdateStatusAsync(It.IsAny<Guid>(), "Shipped")).ReturnsAsync((CustomerOrder?)null);
+
+        var result = await _sut.UpdateOrderStatusAsync(Guid.NewGuid(), "Shipped");
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task UpdateOrderStatusAsync_ReturnsUpdatedOrder_WhenValid()
+    {
+        var orderId = Guid.NewGuid();
+        var order = new CustomerOrder { Id = orderId, UserId = "user-1", Status = "Shipped", CreatedAt = DateTime.UtcNow };
+        _repoMock.Setup(r => r.UpdateStatusAsync(orderId, "Shipped")).ReturnsAsync(order);
+
+        var result = await _sut.UpdateOrderStatusAsync(orderId, "Shipped");
+
+        Assert.NotNull(result);
+        Assert.Equal("Shipped", result!.Status);
+    }
 }

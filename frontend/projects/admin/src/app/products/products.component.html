@@ -1,0 +1,61 @@
+<section>
+  <h2>Products</h2>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="product-form">
+    <label>
+      Name
+      <input formControlName="name" />
+    </label>
+    <label>
+      Category
+      <input formControlName="category" />
+    </label>
+    <label>
+      Price
+      <input type="number" step="0.01" formControlName="price" />
+    </label>
+    <label>
+      Stock
+      <input type="number" formControlName="stock" />
+    </label>
+
+    <div class="form-actions">
+      <button type="submit" [disabled]="form.invalid">
+        {{ editingId() === null ? 'Add product' : 'Save changes' }}
+      </button>
+      @if (editingId() !== null) {
+        <button type="button" (click)="cancelEdit()">Cancel</button>
+      }
+    </div>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Category</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (product of products(); track product.id) {
+        <tr>
+          <td>{{ product.name }}</td>
+          <td>{{ product.category }}</td>
+          <td>{{ product.price | number: '1.2-2' }}</td>
+          <td>{{ product.stock }}</td>
+          <td>
+            <button type="button" (click)="edit(product)">Edit</button>
+            <button type="button" (click)="delete(product)">Delete</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</section>

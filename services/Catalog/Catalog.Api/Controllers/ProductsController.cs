@@ -1,5 +1,6 @@
 using Catalog.Application.DTOs;
 using Catalog.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.Api.Controllers;
@@ -65,5 +66,29 @@ public class ProductsController : ControllerBase
     {
         var success = await _productService.DecrementStockAsync(id, request.Quantity);
         return success ? NoContent() : BadRequest("Insufficient stock or product not found.");
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateProductRequest request)
+    {
+        var product = await _productService.CreateProductAsync(request);
+        return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, UpdateProductRequest request)
+    {
+        var product = await _productService.UpdateProductAsync(id, request);
+        return product is null ? NotFound() : Ok(product);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var success = await _productService.DeleteProductAsync(id);
+        return success ? NoContent() : NotFound();
     }
 }

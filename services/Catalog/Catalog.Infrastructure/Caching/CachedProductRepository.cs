@@ -82,5 +82,25 @@ public class CachedProductRepository : IProductRepository
         return success;
     }
 
+    public Task<Product> CreateAsync(Product product) => _inner.CreateAsync(product);
+
+    public async Task<Product?> UpdateAsync(int id, Product product)
+    {
+        var updated = await _inner.UpdateAsync(id, product);
+        if (updated is not null)
+            await _cache.RemoveAsync($"product_{id}");
+
+        return updated;
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var success = await _inner.DeleteAsync(id);
+        if (success)
+            await _cache.RemoveAsync($"product_{id}");
+
+        return success;
+    }
+
     private record CachedPage(List<Product> Data, int TotalCount);
 }

@@ -101,6 +101,15 @@ using (var scope = app.Services.CreateScope())
         if (!await roleManager.RoleExistsAsync(role))
             await roleManager.CreateAsync(new IdentityRole(role));
     }
+
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    const string adminEmail = "admin@commerce-app-lab.local";
+    if (await userManager.FindByEmailAsync(adminEmail) is null)
+    {
+        var admin = new ApplicationUser { UserName = adminEmail, Email = adminEmail };
+        await userManager.CreateAsync(admin, "Admin123!");
+        await userManager.AddToRoleAsync(admin, Roles.Admin);
+    }
 }
 
 app.Run();

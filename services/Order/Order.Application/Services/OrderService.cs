@@ -7,6 +7,8 @@ namespace Order.Application.Services;
 
 public class OrderService
 {
+    private static readonly string[] ValidStatuses = ["Placed", "Shipped", "Delivered", "Cancelled"];
+
     private readonly IOrderRepository _repository;
     private readonly ICartClient _cartClient;
     private readonly IEventPublisher _eventPublisher;
@@ -64,6 +66,29 @@ public class OrderService
         var order = await _repository.GetByIdAsync(orderId);
         return order is null || order.UserId != userId ? null : Map(order);
     }
+
+    public async Task<IReadOnlyList<AdminOrderDto>> GetAllOrdersAsync()
+    {
+        var orders = await _repository.GetAllAsync();
+        return orders.Select(MapAdmin).ToList();
+    }
+
+    public async Task<AdminOrderDto?> UpdateOrderStatusAsync(Guid orderId, string status)
+    {
+        if (!ValidStatuses.Contains(status))
+            throw new ArgumentException($"Status must be one of: {string.Join(", ", ValidStatuses)}");
+
+        var order = await _repository.UpdateStatusAsync(orderId, status);
+        return order is null ? null : MapAdmin(order);
+    }
+
+    private static AdminOrderDto MapAdmin(CustomerOrder order) => new(
+        order.Id,
+        order.UserId,
+        order.Status,
+        order.TotalAmount,
+        order.CreatedAt,
+        order.Items.Select(i => new OrderItemDto(i.ProductId, i.ProductName, i.UnitPrice, i.Quantity)).ToList());
 
     private static OrderDto Map(CustomerOrder order) => new(
         order.Id,

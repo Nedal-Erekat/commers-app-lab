@@ -36,4 +36,24 @@ public class OrderRepository : IOrderRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(o => o.Id == id);
     }
+
+    public async Task<IReadOnlyList<CustomerOrder>> GetAllAsync()
+    {
+        return await _context.Orders
+            .Include(o => o.Items)
+            .AsNoTracking()
+            .OrderByDescending(o => o.CreatedAt)
+            .ToListAsync();
+    }
+
+    public async Task<CustomerOrder?> UpdateStatusAsync(Guid id, string status)
+    {
+        var order = await _context.Orders.Include(o => o.Items).FirstOrDefaultAsync(o => o.Id == id);
+        if (order is null)
+            return null;
+
+        order.Status = status;
+        await _context.SaveChangesAsync();
+        return order;
+    }
 }

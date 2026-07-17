@@ -22,6 +22,8 @@ spec:
               valueFrom: { secretKeyRef: { name: app-secrets, key: CatalogDbConnectionString } }
             - name: ConnectionStrings__Redis
               valueFrom: { secretKeyRef: { name: app-secrets, key: RedisConnectionString } }
+            - name: Jwt__Key
+              valueFrom: { secretKeyRef: { name: app-secrets, key: JwtKey } }
           resources:
             requests: { cpu: 50m, memory: 96Mi }
             limits: { cpu: 250m, memory: 256Mi }
