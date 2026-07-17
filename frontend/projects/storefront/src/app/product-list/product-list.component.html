@@ -27,7 +27,8 @@
           <h3>{{ product.name }}</h3>
           <p class="category">{{ product.category }}</p>
           <p class="price">{{ product.price | currency }}</p>
-          <button type="button" (click)="addToCart(product.id)">
+          <p class="stock">In stock: {{ product.stock }}</p>
+          <button type="button" (click)="addToCart(product.id)" [disabled]="product.stock === 0">
             {{ addedProductId() === product.id ? 'Added!' : 'Add to Cart' }}
           </button>
         </article>

@@ -5,4 +5,5 @@ public record ProductDto(
     string Name,
     string Category,
     decimal Price,
+    int Stock,
     DateTime CreatedAt);

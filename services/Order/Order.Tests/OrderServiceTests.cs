@@ -10,11 +10,12 @@ public class OrderServiceTests
 {
     private readonly Mock<IOrderRepository> _repoMock = new();
     private readonly Mock<ICartClient> _cartClientMock = new();
+    private readonly Mock<IEventPublisher> _eventPublisherMock = new();
     private readonly OrderService _sut;
 
     public OrderServiceTests()
     {
-        _sut = new OrderService(_repoMock.Object, _cartClientMock.Object);
+        _sut = new OrderService(_repoMock.Object, _cartClientMock.Object, _eventPublisherMock.Object);
     }
 
     [Fact]
@@ -55,6 +56,18 @@ public class OrderServiceTests
 
         _repoMock.Verify(r => r.AddAsync(It.Is<CustomerOrder>(o => o.UserId == "user-1" && o.Items.Count == 1)), Times.Once);
         _cartClientMock.Verify(c => c.ClearCartAsync("token"), Times.Once);
+        _eventPublisherMock.Verify(p => p.PublishOrderPlacedAsync(It.Is<OrderPlacedEvent>(
+            e => e.UserId == "user-1" && e.Items.Count == 1 && e.Items[0].ProductId == 1)), Times.Once);
+    }
+
+    [Fact]
+    public async Task CheckoutAsync_DoesNotPublishEvent_WhenCartIsEmpty()
+    {
+        _cartClientMock.Setup(c => c.GetCartAsync("token")).ReturnsAsync(new CartSnapshot([], 0m));
+
+        await _sut.CheckoutAsync("user-1", "token");
+
+        _eventPublisherMock.Verify(p => p.PublishOrderPlacedAsync(It.IsAny<OrderPlacedEvent>()), Times.Never);
     }
 
     [Fact]

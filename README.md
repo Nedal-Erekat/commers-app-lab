@@ -29,6 +29,7 @@ commerce-app-lab/
 │   ├── Identity/
 │   ├── Cart/
 │   ├── Order/
+│   ├── OrderProcessing/ ← Worker Service, no HTTP — consumes order-placed events
 │   ├── Gateway/
 │   └── Mcp/
 ├── frontend/            ← Angular workspace
@@ -36,12 +37,13 @@ commerce-app-lab/
 │       ├── storefront/
 │       └── admin/
 └── infra/
-    └── bicep/           ← Azure IaC
+    ├── bicep/                 ← Azure IaC
+    └── servicebus-emulator/   ← local Service Bus emulator config (queue definitions)
 ```
 
 ## Status
 
-Milestone 3 is done: Cart and Order microservices behind a YARP API Gateway ([services/Gateway](services/Gateway/README.md)), with real service-to-service REST calls — Cart calls Catalog to resolve product info, Order calls Cart to read and clear the cart during checkout. The Angular storefront now has Add to Cart, a cart page, and checkout/order-history pages, and calls everything through the gateway instead of individual service ports. See [ROADMAP.md](ROADMAP.md) for what's next.
+Milestone 4 is done: checkout publishes an `OrderPlaced` message to an Azure Service Bus queue, consumed asynchronously by a new [OrderProcessing worker](services/OrderProcessing/README.md) that decrements product stock (via Catalog) and logs a simulated order-confirmation notification. Locally this runs against the official Service Bus emulator via Docker Compose rather than a real Azure namespace. See [ROADMAP.md](ROADMAP.md) for what's next.
 
 ## Getting started
 
@@ -51,7 +53,7 @@ Milestone 3 is done: Cart and Order microservices behind a YARP API Gateway ([se
 docker-compose up --build
 ```
 
-Everything goes through the gateway at `http://localhost:5000`. Individual services are still reachable directly for debugging/Swagger: Catalog `5001`, Identity `5002`, Cart `5003`, Order `5004` (Swagger at `/swagger` on each, in Development).
+Everything goes through the gateway at `http://localhost:5000`. Individual services are still reachable directly for debugging/Swagger: Catalog `5001`, Identity `5002`, Cart `5003`, Order `5004` (Swagger at `/swagger` on each, in Development). `order-processing-worker` has no HTTP endpoint — watch its logs to see it consuming `order-placed` messages.
 
 **Frontend:**
 
@@ -61,4 +63,4 @@ npm install
 npx ng serve storefront   # http://localhost:4200, or: npx ng serve admin
 ```
 
-Each backend service documents its own run/migration instructions in its own README: [Catalog](services/Catalog/README.md), [Identity](services/Identity/README.md), [Cart](services/Cart/README.md), [Order](services/Order/README.md), [Gateway](services/Gateway/README.md).
+Each backend service documents its own run/migration instructions in its own README: [Catalog](services/Catalog/README.md), [Identity](services/Identity/README.md), [Cart](services/Cart/README.md), [Order](services/Order/README.md), [OrderProcessing](services/OrderProcessing/README.md), [Gateway](services/Gateway/README.md).

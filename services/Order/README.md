@@ -1,6 +1,8 @@
 # Order Service
 
-ASP.NET Core 10 Web API, Clean Architecture, EF Core 10 + SQL Server. Owns checkout and order history. Validates JWTs issued by Identity. Checkout doesn't take a request body — it calls the Cart service over HTTP (forwarding the caller's bearer token) to read the current cart, snapshots it into an order, then calls Cart again to clear it. A second concrete example of service-to-service communication, and the synchronous version of the flow that milestone 4 will make event-driven via Azure Service Bus.
+ASP.NET Core 10 Web API, Clean Architecture, EF Core 10 + SQL Server. Owns checkout and order history. Validates JWTs issued by Identity. Checkout doesn't take a request body — it calls the Cart service over HTTP (forwarding the caller's bearer token) to read the current cart, snapshots it into an order, then calls Cart again to clear it — a synchronous, request-scoped service-to-service call.
+
+After the order is saved and the cart cleared, checkout also publishes an `OrderPlaced` message to the `order-placed` Azure Service Bus queue and returns immediately — it doesn't wait for whatever happens downstream. The [OrderProcessing worker](../OrderProcessing/README.md) consumes that queue asynchronously to decrement stock and log a notification. This is the event-driven counterpart to the synchronous Cart calls: checkout latency isn't coupled to inventory/notification work.
 
 ## Endpoints
 

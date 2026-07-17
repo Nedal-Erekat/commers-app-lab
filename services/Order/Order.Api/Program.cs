@@ -6,6 +6,7 @@ using Order.Application.Interfaces;
 using Order.Application.Services;
 using Order.Domain.Interfaces;
 using Order.Infrastructure.Clients;
+using Order.Infrastructure.Messaging;
 using Order.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -51,6 +52,9 @@ builder.Services.AddHttpClient<ICartClient, CartClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["CartApi:BaseUrl"]!);
 });
+
+builder.Services.Configure<ServiceBusSettings>(builder.Configuration.GetSection("ServiceBus"));
+builder.Services.AddSingleton<IEventPublisher, ServiceBusEventPublisher>();
 
 var app = builder.Build();
 

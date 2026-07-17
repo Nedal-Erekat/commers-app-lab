@@ -80,6 +80,8 @@ services:
       - Jwt__Issuer=commerce-app-lab-identity
       - Jwt__Audience=commerce-app-lab
       - CartApi__BaseUrl=http://cart-api:8080
+      - ServiceBus__ConnectionString=Endpoint=sb://sb-emulator;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ServiceBus__QueueName=order-placed
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "5004:8080"
@@ -87,6 +89,40 @@ services:
       db:
         condition: service_healthy
       cart-api:
+        condition: service_started
+      sb-emulator:
+        condition: service_started
+
+  sqledge:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "YourPassword123"
+
+  sb-emulator:
+    image: mcr.microsoft.com/azure-messaging/servicebus-emulator:latest
+    environment:
+      ACCEPT_EULA: "Y"
+      SQL_SERVER: sqledge
+      MSSQL_SA_PASSWORD: "YourPassword123"
+    volumes:
+      - ./infra/servicebus-emulator/config.json:/ServiceBus_Emulator/ConfigFiles/Config.json:ro
+    ports:
+      - "5672:5672"
+    depends_on:
+      - sqledge
+
+  order-processing-worker:
+    build: ./services/OrderProcessing
+    environment:
+      - ServiceBus__ConnectionString=Endpoint=sb://sb-emulator;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ServiceBus__QueueName=order-placed
+      - CatalogApi__BaseUrl=http://catalog-api:8080
+      - DOTNET_ENVIRONMENT=Development
+    depends_on:
+      sb-emulator:
+        condition: service_started
+      catalog-api:
         condition: service_started
 
   gateway:

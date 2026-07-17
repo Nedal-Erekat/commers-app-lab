@@ -10,7 +10,7 @@ A practice commerce platform built specifically to gain hands-on, interview-read
 
 **Source of truth for scope and sequencing:** [ROADMAP.md](ROADMAP.md). Always check it before starting work — build the current milestone, not ahead of it. Update its status column as milestones complete.
 
-**Current milestone:** 3 (Cart + Order microservices behind a YARP gateway) — done. Next up: milestone 4 (Order → Azure Service Bus → async inventory/notification handler).
+**Current milestone:** 4 (Order → Azure Service Bus → async inventory/notification handler) — done. Next up: milestone 5 (deploy everything to Azure).
 
 The Angular storefront now calls everything through the Gateway (`http://localhost:5000`) instead of individual service ports — `environment.ts`/`environment.development.ts` expose a single `apiUrl`. Keep it that way; don't reintroduce per-service URLs in the frontend.
 
@@ -45,6 +45,7 @@ commerce-app-lab/
 │   ├── Identity/
 │   ├── Cart/
 │   ├── Order/
+│   ├── OrderProcessing/   ← Worker Service (no HTTP), consumes Service Bus queue
 │   ├── Gateway/
 │   └── Mcp/
 ├── frontend/               ← Angular workspace (npm install at this level)
@@ -52,10 +53,15 @@ commerce-app-lab/
 │       ├── storefront/
 │       └── admin/
 └── infra/
-    └── bicep/               ← Azure IaC + teardown script
+    ├── bicep/                 ← Azure IaC + teardown script
+    └── servicebus-emulator/   ← local emulator config.json (queue definitions)
 ```
 
 Each service under `services/` gets its own `.sln`, its own EF Core `DbContext`/database, and its own Dockerfile — they are genuinely independent deployables, not layered folders sharing one process. Reuse ScaleLab's proven per-service conventions (file-scoped namespaces, async throughout, `.AsNoTracking()` on reads, Clean Architecture layering) rather than reinventing them.
+
+Cross-service contracts (event payloads, HTTP client DTOs) are deliberately duplicated per-service rather than shared via a common library — each service owns its own copy of what it needs from another service's API. Keep doing this; don't introduce a shared contracts package.
+
+Locally, Azure Service Bus is the official [Service Bus emulator](https://learn.microsoft.com/azure/service-bus-messaging/overview-emulator) run via Docker Compose (`sb-emulator` + its `sqledge` metadata store), not a real Azure namespace. Real Service Bus only enters the picture in milestone 5's Azure deployment.
 
 ---
 

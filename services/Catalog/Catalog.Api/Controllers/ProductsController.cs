@@ -1,3 +1,4 @@
+using Catalog.Application.DTOs;
 using Catalog.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -56,5 +57,12 @@ public class ProductsController : ControllerBase
 
         var product = await _productService.GetProductAsync(id);
         return product is null ? NotFound() : Ok(product);
+    }
+
+    [HttpPost("{id:int}/decrement-stock")]
+    public async Task<IActionResult> DecrementStock(int id, DecrementStockRequest request)
+    {
+        var success = await _productService.DecrementStockAsync(id, request.Quantity);
+        return success ? NoContent() : BadRequest("Insufficient stock or product not found.");
     }
 }

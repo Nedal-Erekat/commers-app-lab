@@ -40,4 +40,15 @@ public class ProductRepository : IProductRepository
     {
         return await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
     }
+
+    public async Task<bool> DecrementStockAsync(int id, int quantity)
+    {
+        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
+        if (product is null || product.Stock < quantity)
+            return false;
+
+        product.Stock -= quantity;
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }

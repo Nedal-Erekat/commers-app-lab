@@ -71,5 +71,14 @@ public class CachedProductRepository : IProductRepository
         return product;
     }
 
+    public async Task<bool> DecrementStockAsync(int id, int quantity)
+    {
+        var success = await _inner.DecrementStockAsync(id, quantity);
+        if (success)
+            await _cache.RemoveAsync($"product_{id}");
+
+        return success;
+    }
+
     private record CachedPage(List<Product> Data, int TotalCount);
 }

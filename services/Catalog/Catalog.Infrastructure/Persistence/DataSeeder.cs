@@ -20,6 +20,7 @@ public class DataSeeder
             .RuleFor(p => p.Name, f => f.Commerce.ProductName())
             .RuleFor(p => p.Category, f => f.Commerce.Categories(1)[0])
             .RuleFor(p => p.Price, f => Math.Round(f.Random.Decimal(0.99m, 9_999.99m), 2))
+            .RuleFor(p => p.Stock, f => f.Random.Int(0, 500))
             .RuleFor(p => p.CreatedAt, f => f.Date.Past(2));
 
         for (int i = 0; i < total; i += batchSize)

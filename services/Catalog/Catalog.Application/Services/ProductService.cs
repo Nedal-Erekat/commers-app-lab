@@ -23,12 +23,14 @@ public class ProductService
     public async Task<IReadOnlyList<ProductDto>> SearchProductsAsync(string term)
     {
         var products = await _repository.SearchByNameAsync(term);
-        return products.Select(p => new ProductDto(p.Id, p.Name, p.Category, p.Price, p.CreatedAt)).ToList();
+        return products.Select(p => new ProductDto(p.Id, p.Name, p.Category, p.Price, p.Stock, p.CreatedAt)).ToList();
     }
 
     public async Task<ProductDto?> GetProductAsync(int id)
     {
         var product = await _repository.GetByIdAsync(id);
-        return product is null ? null : new ProductDto(product.Id, product.Name, product.Category, product.Price, product.CreatedAt);
+        return product is null ? null : new ProductDto(product.Id, product.Name, product.Category, product.Price, product.Stock, product.CreatedAt);
     }
+
+    public Task<bool> DecrementStockAsync(int id, int quantity) => _repository.DecrementStockAsync(id, quantity);
 }

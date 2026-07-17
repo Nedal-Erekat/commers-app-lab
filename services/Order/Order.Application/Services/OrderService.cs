@@ -9,11 +9,13 @@ public class OrderService
 {
     private readonly IOrderRepository _repository;
     private readonly ICartClient _cartClient;
+    private readonly IEventPublisher _eventPublisher;
 
-    public OrderService(IOrderRepository repository, ICartClient cartClient)
+    public OrderService(IOrderRepository repository, ICartClient cartClient, IEventPublisher eventPublisher)
     {
         _repository = repository;
         _cartClient = cartClient;
+        _eventPublisher = eventPublisher;
     }
 
     public async Task<OrderDto?> CheckoutAsync(string userId, string bearerToken)
@@ -41,6 +43,12 @@ public class OrderService
 
         await _repository.AddAsync(order);
         await _cartClient.ClearCartAsync(bearerToken);
+
+        await _eventPublisher.PublishOrderPlacedAsync(new OrderPlacedEvent(
+            order.Id,
+            order.UserId,
+            order.Items.Select(i => new OrderPlacedItem(i.ProductId, i.ProductName, i.Quantity)).ToList(),
+            order.CreatedAt));
 
         return Map(order);
     }

@@ -80,4 +80,15 @@ public class ProductServiceTests
 
         Assert.Null(result);
     }
+
+    [Fact]
+    public async Task DecrementStockAsync_DelegatesToRepository()
+    {
+        _repoMock.Setup(r => r.DecrementStockAsync(1, 2)).ReturnsAsync(true);
+
+        var result = await _sut.DecrementStockAsync(1, 2);
+
+        Assert.True(result);
+        _repoMock.Verify(r => r.DecrementStockAsync(1, 2), Times.Once);
+    }
 }
