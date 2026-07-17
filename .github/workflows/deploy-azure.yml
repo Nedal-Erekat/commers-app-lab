@@ -1,0 +1,44 @@
+name: Deploy to Azure
+
+# Manual trigger only — this costs real money (AKS, SQL, Redis, Service Bus), so
+# it never runs automatically on push. Run it when you actually want the
+# environment up for a demo; use the "Teardown Azure" workflow (or
+# infra/bicep/teardown.sh) when you're done.
+#
+# NOT RUN in this session — no Azure credentials available here. Review before
+# using. Requires repo secrets: AZURE_CREDENTIALS (service principal with
+# Contributor on the target subscription/RG — see azure/login@v2 docs for the
+# JSON shape), SQL_ADMIN_PASSWORD, JWT_KEY.
+
+on:
+  workflow_dispatch:
+    inputs:
+      resource_group:
+        description: "Azure resource group to deploy into"
+        required: true
+        default: "commerce-app-lab-rg"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: azure-production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq gettext-base
+
+      - name: Deploy infrastructure and apps
+        env:
+          RESOURCE_GROUP: ${{ inputs.resource_group }}
+          SQL_ADMIN_PASSWORD: ${{ secrets.SQL_ADMIN_PASSWORD }}
+          JWT_KEY: ${{ secrets.JWT_KEY }}
+        run: bash infra/bicep/deploy.sh

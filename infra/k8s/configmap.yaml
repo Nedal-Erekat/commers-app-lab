@@ -1,0 +1,18 @@
+# Non-secret configuration, shared across services. Secrets (connection strings,
+# JWT key, Service Bus connection string) are created separately — see
+# infra/bicep/deploy.sh, which builds them from Bicep outputs.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  ASPNETCORE_ENVIRONMENT: "Production"
+  Jwt__Issuer: "commerce-app-lab-identity"
+  Jwt__Audience: "commerce-app-lab"
+  CatalogApi__BaseUrl: "http://catalog-api"
+  CartApi__BaseUrl: "http://cart-api"
+  ServiceBus__QueueName: "order-placed"
+  ReverseProxy__Clusters__catalog-cluster__Destinations__destination1__Address: "http://catalog-api"
+  ReverseProxy__Clusters__identity-cluster__Destinations__destination1__Address: "http://identity-api"
+  ReverseProxy__Clusters__cart-cluster__Destinations__destination1__Address: "http://cart-api"
+  ReverseProxy__Clusters__order-cluster__Destinations__destination1__Address: "http://order-api"

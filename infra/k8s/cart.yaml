@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cart-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: cart-api }
+  template:
+    metadata:
+      labels: { app: cart-api }
+    spec:
+      containers:
+        - name: cart-api
+          image: ${ACR_LOGIN_SERVER}/cart-api:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef: { name: app-config }
+          env:
+            - name: ConnectionStrings__DefaultConnection
+              valueFrom: { secretKeyRef: { name: app-secrets, key: CartDbConnectionString } }
+            - name: Jwt__Key
+              valueFrom: { secretKeyRef: { name: app-secrets, key: JwtKey } }
+          resources:
+            requests: { cpu: 50m, memory: 96Mi }
+            limits: { cpu: 250m, memory: 256Mi }
+          readinessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 30
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cart-api
+spec:
+  selector: { app: cart-api }
+  ports:
+    - port: 80
+      targetPort: 8080

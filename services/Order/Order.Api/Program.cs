@@ -56,6 +56,8 @@ builder.Services.AddHttpClient<ICartClient, CartClient>(client =>
 builder.Services.Configure<ServiceBusSettings>(builder.Configuration.GetSection("ServiceBus"));
 builder.Services.AddSingleton<IEventPublisher, ServiceBusEventPublisher>();
 
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -69,6 +71,7 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 using (var scope = app.Services.CreateScope())
 {

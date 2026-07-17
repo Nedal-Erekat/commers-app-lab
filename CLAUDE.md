@@ -10,7 +10,7 @@ A practice commerce platform built specifically to gain hands-on, interview-read
 
 **Source of truth for scope and sequencing:** [ROADMAP.md](ROADMAP.md). Always check it before starting work — build the current milestone, not ahead of it. Update its status column as milestones complete.
 
-**Current milestone:** 4 (Order → Azure Service Bus → async inventory/notification handler) — done. Next up: milestone 5 (deploy everything to Azure).
+**Current milestone:** 5 (Azure deployment — AKS, ACR, Azure SQL, Redis, Service Bus, Bicep IaC, GitHub Actions) — IaC/manifests/workflows written, **not yet run against real Azure** (no Azure CLI or credentials in the environment that built it). Next up: milestone 6 (.NET MCP server). Before trusting milestone 5's IaC, actually run `infra/bicep/deploy.sh` once and fix whatever the real ARM API rejects — the AKS `sku` block in `main.bicep` is flagged as the most likely thing to have drifted from the current schema.
 
 The Angular storefront now calls everything through the Gateway (`http://localhost:5000`) instead of individual service ports — `environment.ts`/`environment.development.ts` expose a single `apiUrl`. Keep it that way; don't reintroduce per-service URLs in the frontend.
 
@@ -53,7 +53,8 @@ commerce-app-lab/
 │       ├── storefront/
 │       └── admin/
 └── infra/
-    ├── bicep/                 ← Azure IaC + teardown script
+    ├── bicep/                 ← Azure IaC (main.bicep) + deploy.sh/teardown.sh
+    ├── k8s/                   ← Kubernetes manifests, one Deployment(+Service) per HTTP service
     └── servicebus-emulator/   ← local emulator config.json (queue definitions)
 ```
 
@@ -61,7 +62,11 @@ Each service under `services/` gets its own `.sln`, its own EF Core `DbContext`/
 
 Cross-service contracts (event payloads, HTTP client DTOs) are deliberately duplicated per-service rather than shared via a common library — each service owns its own copy of what it needs from another service's API. Keep doing this; don't introduce a shared contracts package.
 
-Locally, Azure Service Bus is the official [Service Bus emulator](https://learn.microsoft.com/azure/service-bus-messaging/overview-emulator) run via Docker Compose (`sb-emulator` + its `sqledge` metadata store), not a real Azure namespace. Real Service Bus only enters the picture in milestone 5's Azure deployment.
+Locally, Azure Service Bus is the official [Service Bus emulator](https://learn.microsoft.com/azure/service-bus-messaging/overview-emulator) run via Docker Compose (`sb-emulator` + its `sqledge` metadata store), not a real Azure namespace.
+
+Every ASP.NET Core service (not the OrderProcessing worker — it has no HTTP) exposes `GET /health` via `AddHealthChecks()`/`MapHealthChecks`, added in milestone 5 specifically for AKS liveness/readiness probes. Keep new services doing the same.
+
+`.github/workflows/deploy-azure.yml` and `teardown-azure.yml` are `workflow_dispatch`-only (never on push) since they cost real money — don't change that trigger without being asked.
 
 ---
 

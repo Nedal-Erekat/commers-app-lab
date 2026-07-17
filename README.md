@@ -37,13 +37,14 @@ commerce-app-lab/
 │       ├── storefront/
 │       └── admin/
 └── infra/
-    ├── bicep/                 ← Azure IaC
+    ├── bicep/                 ← Azure IaC (AKS, ACR, SQL, Redis, Service Bus) + deploy/teardown scripts
+    ├── k8s/                   ← Kubernetes manifests for all 6 services
     └── servicebus-emulator/   ← local Service Bus emulator config (queue definitions)
 ```
 
 ## Status
 
-Milestone 4 is done: checkout publishes an `OrderPlaced` message to an Azure Service Bus queue, consumed asynchronously by a new [OrderProcessing worker](services/OrderProcessing/README.md) that decrements product stock (via Catalog) and logs a simulated order-confirmation notification. Locally this runs against the official Service Bus emulator via Docker Compose rather than a real Azure namespace. See [ROADMAP.md](ROADMAP.md) for what's next.
+Milestone 5 is done: Bicep IaC for the full Azure footprint (AKS, ACR, Azure SQL, Azure Cache for Redis, Service Bus), Kubernetes manifests for all 6 services, and GitHub Actions workflows to deploy/tear it down on demand — see [infra/bicep/README.md](infra/bicep/README.md). **This has not been run against real Azure** — the environment this was built in has no Azure CLI or credentials, so review before deploying. See [ROADMAP.md](ROADMAP.md) for what's next.
 
 ## Getting started
 
@@ -64,3 +65,11 @@ npx ng serve storefront   # http://localhost:4200, or: npx ng serve admin
 ```
 
 Each backend service documents its own run/migration instructions in its own README: [Catalog](services/Catalog/README.md), [Identity](services/Identity/README.md), [Cart](services/Cart/README.md), [Order](services/Order/README.md), [OrderProcessing](services/OrderProcessing/README.md), [Gateway](services/Gateway/README.md).
+
+**Azure:**
+
+```bash
+RESOURCE_GROUP=commerce-app-lab-rg SQL_ADMIN_PASSWORD='...' ./infra/bicep/deploy.sh
+```
+
+See [infra/bicep/README.md](infra/bicep/README.md) — spin up before a demo, tear down after with `./infra/bicep/teardown.sh`.

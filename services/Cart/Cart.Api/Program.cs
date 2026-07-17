@@ -52,6 +52,8 @@ builder.Services.AddHttpClient<IProductCatalogClient, ProductCatalogClient>(clie
     client.BaseAddress = new Uri(builder.Configuration["CatalogApi:BaseUrl"]!);
 });
 
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -65,6 +67,7 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 using (var scope = app.Services.CreateScope())
 {

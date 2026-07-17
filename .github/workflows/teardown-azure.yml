@@ -1,0 +1,26 @@
+name: Teardown Azure
+
+# Manual trigger only. Deletes the whole resource group in one shot — see
+# infra/bicep/teardown.sh. Requires the same AZURE_CREDENTIALS secret as
+# deploy-azure.yml.
+
+on:
+  workflow_dispatch:
+    inputs:
+      resource_group:
+        description: "Azure resource group to delete"
+        required: true
+        default: "commerce-app-lab-rg"
+
+jobs:
+  teardown:
+    runs-on: ubuntu-latest
+    environment: azure-production
+    steps:
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Delete resource group
+        run: az group delete --name "${{ inputs.resource_group }}" --yes --no-wait

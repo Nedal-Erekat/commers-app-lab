@@ -1,0 +1,28 @@
+# Worker Service — no HTTP endpoint, so no Service or httpGet probes here.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-processing-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: order-processing-worker }
+  template:
+    metadata:
+      labels: { app: order-processing-worker }
+    spec:
+      containers:
+        - name: order-processing-worker
+          image: ${ACR_LOGIN_SERVER}/order-processing-worker:latest
+          env:
+            - name: DOTNET_ENVIRONMENT
+              value: "Production"
+            - name: ServiceBus__QueueName
+              valueFrom: { configMapKeyRef: { name: app-config, key: ServiceBus__QueueName } }
+            - name: CatalogApi__BaseUrl
+              valueFrom: { configMapKeyRef: { name: app-config, key: CatalogApi__BaseUrl } }
+            - name: ServiceBus__ConnectionString
+              valueFrom: { secretKeyRef: { name: app-secrets, key: ServiceBusConnectionString } }
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { cpu: 200m, memory: 192Mi }

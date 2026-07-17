@@ -9,9 +9,12 @@ builder.Services.AddCors(options =>
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 app.UseCors();
+app.MapHealthChecks("/health");
 app.MapReverseProxy();
 
 app.Run();

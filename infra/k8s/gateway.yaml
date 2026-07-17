@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: gateway }
+  template:
+    metadata:
+      labels: { app: gateway }
+    spec:
+      containers:
+        - name: gateway
+          image: ${ACR_LOGIN_SERVER}/gateway:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef: { name: app-config }
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { cpu: 200m, memory: 192Mi }
+          readinessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 20
+            periodSeconds: 20
+---
+# type: LoadBalancer provisions a real Azure public IP + Standard Load Balancer —
+# the one piece of this deployment with an always-on cost even when pods are
+# scaled down. Delete this Service (or the whole deployment) between demos.
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+spec:
+  type: LoadBalancer
+  selector: { app: gateway }
+  ports:
+    - port: 80
+      targetPort: 8080

@@ -28,8 +28,8 @@ Each service owns its own EF Core context, its own database (or schema), and its
 | 2 | Identity microservice (JWT auth) + Angular login/register, route guards | ✅ done | Enterprise auth |
 | 3 | Cart + Order microservices behind a YARP API Gateway, service-to-service calls | ✅ done | True microservices, REST |
 | 4 | Order → Azure Service Bus → async inventory/notification handler | ✅ done | Event-driven/distributed patterns |
-| 5 | Containerize all services, deploy to Azure: AKS (small node pool) + Azure SQL (Basic) + Azure Cache for Redis (Basic) + ACR, IaC via Bicep, GitHub Actions CI/CD | next up | Azure/AKS |
-| 6 | .NET MCP server exposing tools: `search-products`, `get-order-status`, `recommend-products`, `add-to-cart`; hosted on Azure | planned | MCP via .NET & Azure |
+| 5 | Containerize all services, deploy to Azure: AKS (small node pool) + Azure SQL (Basic) + Azure Cache for Redis (Basic) + ACR, IaC via Bicep, GitHub Actions CI/CD | ✅ written, unverified | Azure/AKS |
+| 6 | .NET MCP server exposing tools: `search-products`, `get-order-status`, `recommend-products`, `add-to-cart`; hosted on Azure | next up | MCP via .NET & Azure |
 | 7 | AI shopping assistant: chat widget in Angular → assistant backend as an MCP client → calls an LLM to decide which MCP tool to invoke (agentic loop) | planned | Hands-on AI/LLM |
 | 8 | Admin portal features in Angular (manage products/orders, role-based views) | planned | Enterprise/portal application development |
 | 9 | Load testing (k6), observability, Azure teardown script, README + case-study write-up | planned | Interview-ready deliverable |

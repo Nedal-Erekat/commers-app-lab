@@ -34,6 +34,7 @@ builder.Services.AddScoped<IProductRepository>(sp =>
         sp.GetRequiredService<IDistributedCache>()));
 
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
@@ -47,6 +48,7 @@ app.UseHttpsRedirection();
 app.UseCors();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 using (var scope = app.Services.CreateScope())
 {
