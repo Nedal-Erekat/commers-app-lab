@@ -24,8 +24,8 @@ Each service owns its own EF Core context, its own database (or schema), and its
 | # | Milestone | Status | Proves |
 |---|-----------|--------|--------|
 | 0 | Scaffold: repo structure, docker-compose skeleton, Angular workspace (storefront + admin apps) | ✅ done | Repo baseline |
-| 1 | Catalog microservice + Angular storefront (browse/search) | planned | .NET, Angular, REST |
-| 2 | Identity microservice (JWT auth) + Angular login/register, route guards | planned | Enterprise auth |
+| 1 | Catalog microservice + Angular storefront (browse/search) | ✅ done | .NET, Angular, REST |
+| 2 | Identity microservice (JWT auth) + Angular login/register, route guards | next up | Enterprise auth |
 | 3 | Cart + Order microservices behind a YARP API Gateway, service-to-service calls | planned | True microservices, REST |
 | 4 | Order → Azure Service Bus → async inventory/notification handler | planned | Event-driven/distributed patterns |
 | 5 | Containerize all services, deploy to Azure: AKS (small node pool) + Azure SQL (Basic) + Azure Cache for Redis (Basic) + ACR, IaC via Bicep, GitHub Actions CI/CD | planned | Azure/AKS |

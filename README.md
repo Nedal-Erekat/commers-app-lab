@@ -8,7 +8,7 @@ See [ROADMAP.md](ROADMAP.md) for the full milestone plan and target architecture
 
 | Layer | Technology |
 |-------|-----------|
-| Backend services | ASP.NET Core 9, EF Core 9, Clean Architecture per service |
+| Backend services | ASP.NET Core 10, EF Core 10, Clean Architecture per service |
 | Frontend | Angular 19 (storefront + admin apps) |
 | Database | SQL Server (Azure SQL in the cloud) |
 | Cache | Redis (Azure Cache for Redis in the cloud) |
@@ -41,20 +41,24 @@ commerce-app-lab/
 
 ## Status
 
-Milestone 0 (scaffold) is done: repo structure, docker-compose skeleton (SQL Server + Redis), and the Angular workspace with `storefront` and `admin` apps both building cleanly. No business logic yet — see [ROADMAP.md](ROADMAP.md) for what's next.
+Milestone 1 is done: the Catalog microservice (ASP.NET Core 10, EF Core 10, Redis cache-aside — see [services/Catalog/README.md](services/Catalog/README.md)) and the Angular storefront's product browsing/search page are both working. See [ROADMAP.md](ROADMAP.md) for what's next.
 
-## Getting started (frontend)
+## Getting started
+
+**Backend + infra (Docker Compose):**
+
+```bash
+docker-compose up --build db redis catalog-api
+```
+
+The Catalog API is reachable at `http://localhost:5001` (Swagger at `/swagger` in Development).
+
+**Frontend:**
 
 ```bash
 cd frontend
 npm install
-npx ng serve storefront   # or: npx ng serve admin
+npx ng serve storefront   # http://localhost:4200, or: npx ng serve admin
 ```
 
-## Getting started (infra)
-
-```bash
-docker-compose up -d db redis
-```
-
-Backend services will be added milestone by milestone; each will document its own `dotnet ef` / run instructions as it lands.
+Each backend service documents its own run/migration instructions in its own README as it lands (see [services/Catalog/README.md](services/Catalog/README.md) for the first one).

@@ -10,7 +10,7 @@ A practice commerce platform built specifically to gain hands-on, interview-read
 
 **Source of truth for scope and sequencing:** [ROADMAP.md](ROADMAP.md). Always check it before starting work — build the current milestone, not ahead of it. Update its status column as milestones complete.
 
-**Current milestone:** 0 (scaffold) — done. Next up: milestone 1 (Catalog microservice + Angular storefront).
+**Current milestone:** 1 (Catalog microservice + Angular storefront) — done. Next up: milestone 2 (Identity microservice + Angular auth).
 
 ---
 
@@ -18,7 +18,7 @@ A practice commerce platform built specifically to gain hands-on, interview-read
 
 | Layer | Technology |
 |-------|-----------|
-| Backend services | ASP.NET Core 9, EF Core 9 — one Clean Architecture solution per service |
+| Backend services | ASP.NET Core 10, EF Core 10 — one Clean Architecture solution per service |
 | Frontend | Angular 19 (standalone components), two apps in one workspace: `storefront`, `admin` |
 | Database | SQL Server locally, Azure SQL (Basic tier) in the cloud |
 | Cache | Redis locally, Azure Cache for Redis (Basic tier) in the cloud |
@@ -27,6 +27,8 @@ A practice commerce platform built specifically to gain hands-on, interview-read
 | Cloud | Azure — AKS (small node pool), ACR, Bicep IaC |
 | AI | .NET MCP server exposing commerce tools; LLM-driven shopping assistant as an MCP client |
 | Containers | Docker Compose (local dev), AKS (cloud) |
+
+> Note: this project targets **.NET 10** (current LTS), not .NET 9 like dotnet-scale-lab — .NET 9 is STS and past its support window as of mid-2026. Reuse ScaleLab's patterns, not its exact package versions.
 
 ---
 

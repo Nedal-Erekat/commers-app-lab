@@ -1,0 +1,41 @@
+.search {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.meta {
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.error {
+  color: #c00;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.category {
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.price {
+  font-weight: bold;
+}
+
+.pagination {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}

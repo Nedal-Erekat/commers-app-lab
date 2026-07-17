@@ -1,0 +1,39 @@
+<section>
+  <form class="search" (ngSubmit)="runSearch()">
+    <input
+      type="text"
+      placeholder="Search products…"
+      [ngModel]="searchTerm()"
+      (ngModelChange)="searchTerm.set($event)"
+      name="search"
+    />
+    <button type="submit">Search</button>
+  </form>
+
+  @if (loading()) {
+    <p>Loading…</p>
+  }
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (!loading() && !error()) {
+    <p class="meta">Source: {{ source() }} — page {{ page() }} of {{ totalPages() }}</p>
+
+    <div class="grid">
+      @for (product of products(); track product.id) {
+        <article class="card">
+          <h3>{{ product.name }}</h3>
+          <p class="category">{{ product.category }}</p>
+          <p class="price">{{ product.price | currency }}</p>
+        </article>
+      }
+    </div>
+
+    <div class="pagination">
+      <button (click)="previousPage()" [disabled]="page() <= 1">Previous</button>
+      <button (click)="nextPage()" [disabled]="page() >= totalPages()">Next</button>
+    </div>
+  }
+</section>

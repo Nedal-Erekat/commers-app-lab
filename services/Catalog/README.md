@@ -1,5 +1,41 @@
 # Catalog Service
 
-Planned in **milestone 1** (see [ROADMAP.md](../../ROADMAP.md)).
+ASP.NET Core 10 Web API, Clean Architecture (Domain → Application → Infrastructure → Api), EF Core 10, SQL Server, Redis cache-aside. Owns product data and search. Ported from the patterns proven in [dotnet-scale-lab](https://github.com/nedal-erekat/dotnet-scale-lab).
 
-ASP.NET Core 9 Web API, Clean Architecture (Domain → Application → Infrastructure → Presentation), EF Core 9, SQL Server. Owns product/category data and search. Ported from the product-catalog patterns proven in [dotnet-scale-lab](https://github.com/nedal-erekat/dotnet-scale-lab).
+## Endpoints
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/products?page=&pageSize=` | Paginated product list (cache-aside via Redis) |
+| GET | `/api/products/search?q=` | Prefix search by name (bypasses cache) |
+| GET | `/swagger` | Swagger UI (Development only) |
+
+## Running locally (without Docker)
+
+Requires SQL Server and Redis reachable at the addresses in `appsettings.json` (`localhost,1433` / `localhost:6379`).
+
+```bash
+dotnet restore
+dotnet ef migrations add InitialCreate --project Catalog.Infrastructure --startup-project Catalog.Api   # only if migrations don't exist yet
+dotnet run --project Catalog.Api
+```
+
+On first run it applies migrations and seeds 20,000 fake products (Bogus) if the `Products` table is empty.
+
+## Running via Docker Compose
+
+From the repo root:
+
+```bash
+docker-compose up --build db redis catalog-api
+```
+
+The API is reachable at `http://localhost:5001`.
+
+## Tests
+
+```bash
+dotnet test
+```
+
+Covers `ProductService` pagination math and `CachedProductRepository`'s cache-aside behavior with an in-memory `IDistributedCache`.

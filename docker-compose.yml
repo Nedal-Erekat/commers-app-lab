@@ -1,14 +1,13 @@
 name: commerce-app-lab
 
-# Milestone 0: infra only. Each service is uncommented and added here as its
-# own milestone lands (see ROADMAP.md).
+# Services are uncommented and added here as their milestone lands (see ROADMAP.md).
 
 services:
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       ACCEPT_EULA: "Y"
-      SA_PASSWORD: "YourPassword123"
+      MSSQL_SA_PASSWORD: "YourPassword123"
     ports:
       - "1433:1433"
     healthcheck:
@@ -28,11 +27,24 @@ services:
       timeout: 5s
       retries: 5
 
-  # catalog-api:        # milestone 1
+  catalog-api:
+    build: ./services/Catalog
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=db,1433;Database=CatalogDb;User Id=sa;Password=YourPassword123;TrustServerCertificate=True
+      - ConnectionStrings__Redis=redis:6379
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5001:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   # identity-api:       # milestone 2
   # cart-api:           # milestone 3
   # order-api:          # milestone 3
   # gateway:             # milestone 3
-  # storefront:          # milestone 1
+  # storefront:          # milestone 1 (run locally via `ng serve` for now)
   # admin:               # milestone 8
   # mcp-server:          # milestone 6
