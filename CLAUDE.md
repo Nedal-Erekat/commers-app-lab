@@ -10,7 +10,9 @@ A practice commerce platform built specifically to gain hands-on, interview-read
 
 **Source of truth for scope and sequencing:** [ROADMAP.md](ROADMAP.md). Always check it before starting work — build the current milestone, not ahead of it. Update its status column as milestones complete.
 
-**Current milestone:** 2 (Identity microservice + Angular auth) — done. Next up: milestone 3 (Cart + Order microservices behind a YARP gateway).
+**Current milestone:** 3 (Cart + Order microservices behind a YARP gateway) — done. Next up: milestone 4 (Order → Azure Service Bus → async inventory/notification handler).
+
+The Angular storefront now calls everything through the Gateway (`http://localhost:5000`) instead of individual service ports — `environment.ts`/`environment.development.ts` expose a single `apiUrl`. Keep it that way; don't reintroduce per-service URLs in the frontend.
 
 ---
 

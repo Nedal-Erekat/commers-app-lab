@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Product } from '../models/product';
+import { AuthService } from '../services/auth.service';
+import { CartService } from '../services/cart.service';
 import { ProductService } from '../services/product.service';
 
 @Component({
@@ -13,6 +16,9 @@ import { ProductService } from '../services/product.service';
 })
 export class ProductListComponent implements OnInit {
   private readonly productService = inject(ProductService);
+  private readonly cartService = inject(CartService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   readonly products = signal<Product[]>([]);
   readonly page = signal(1);
@@ -21,6 +27,7 @@ export class ProductListComponent implements OnInit {
   readonly loading = signal(false);
   readonly error = signal('');
   readonly searchTerm = signal('');
+  readonly addedProductId = signal<number | null>(null);
 
   private readonly pageSize = 20;
 
@@ -80,5 +87,20 @@ export class ProductListComponent implements OnInit {
     if (this.page() > 1) {
       this.loadPage(this.page() - 1);
     }
+  }
+
+  addToCart(productId: number): void {
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: '/' } });
+      return;
+    }
+
+    this.cartService.addItem(productId, 1).subscribe({
+      next: () => {
+        this.addedProductId.set(productId);
+        setTimeout(() => this.addedProductId.set(null), 1500);
+      },
+      error: () => this.error.set('Could not add to cart.')
+    });
   }
 }

@@ -1,0 +1,40 @@
+<section>
+  <h2>Your Cart</h2>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (cart(); as c) {
+    @if (c.items.length === 0) {
+      <p>Your cart is empty.</p>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Qty</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of c.items; track item.productId) {
+            <tr>
+              <td>{{ item.productName }}</td>
+              <td>{{ item.unitPrice | currency }}</td>
+              <td>{{ item.quantity }}</td>
+              <td><button type="button" (click)="removeItem(item.productId)">Remove</button></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <p><strong>Total: {{ c.total | currency }}</strong></p>
+
+      <button type="button" (click)="checkout()" [disabled]="checkingOut()">
+        {{ checkingOut() ? 'Placing order…' : 'Checkout' }}
+      </button>
+    }
+  }
+</section>

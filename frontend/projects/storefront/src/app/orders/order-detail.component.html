@@ -1,0 +1,33 @@
+<section>
+  <h2>Order confirmation</h2>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (order(); as o) {
+    <p>Status: {{ o.status }}</p>
+    <p>Placed: {{ o.createdAt | date: 'medium' }}</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Qty</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of o.items; track item.productId) {
+          <tr>
+            <td>{{ item.productName }}</td>
+            <td>{{ item.unitPrice | currency }}</td>
+            <td>{{ item.quantity }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <p><strong>Total: {{ o.totalAmount | currency }}</strong></p>
+  }
+</section>

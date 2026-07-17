@@ -9,7 +9,7 @@ const STORAGE_KEY = 'commerce-app-lab.auth';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.identityApiUrl}/api/auth`;
+  private readonly baseUrl = `${environment.apiUrl}/api/auth`;
 
   private readonly session = signal<AuthResponse | null>(this.readStoredSession());
 

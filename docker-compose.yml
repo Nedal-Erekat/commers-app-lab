@@ -55,9 +55,56 @@ services:
       db:
         condition: service_healthy
 
-  # cart-api:           # milestone 3
-  # order-api:          # milestone 3
-  # gateway:             # milestone 3
+  cart-api:
+    build: ./services/Cart
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=db,1433;Database=CartDb;User Id=sa;Password=YourPassword123;TrustServerCertificate=True
+      - Jwt__Key=NrQlrM3IEtEuIi0Hjw4P6+5GMAoIIMgGHQNLsd+OjDRiYu39VkUVgOOsvsvYYTJ/
+      - Jwt__Issuer=commerce-app-lab-identity
+      - Jwt__Audience=commerce-app-lab
+      - CatalogApi__BaseUrl=http://catalog-api:8080
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5003:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      catalog-api:
+        condition: service_started
+
+  order-api:
+    build: ./services/Order
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=db,1433;Database=OrderDb;User Id=sa;Password=YourPassword123;TrustServerCertificate=True
+      - Jwt__Key=NrQlrM3IEtEuIi0Hjw4P6+5GMAoIIMgGHQNLsd+OjDRiYu39VkUVgOOsvsvYYTJ/
+      - Jwt__Issuer=commerce-app-lab-identity
+      - Jwt__Audience=commerce-app-lab
+      - CartApi__BaseUrl=http://cart-api:8080
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5004:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      cart-api:
+        condition: service_started
+
+  gateway:
+    build: ./services/Gateway
+    environment:
+      - ReverseProxy__Clusters__catalog-cluster__Destinations__destination1__Address=http://catalog-api:8080
+      - ReverseProxy__Clusters__identity-cluster__Destinations__destination1__Address=http://identity-api:8080
+      - ReverseProxy__Clusters__cart-cluster__Destinations__destination1__Address=http://cart-api:8080
+      - ReverseProxy__Clusters__order-cluster__Destinations__destination1__Address=http://order-api:8080
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5000:8080"
+    depends_on:
+      - catalog-api
+      - identity-api
+      - cart-api
+      - order-api
+
   # storefront:          # milestone 1 (run locally via `ng serve` for now)
   # admin:               # milestone 8
   # mcp-server:          # milestone 6

@@ -58,4 +58,26 @@ public class ProductServiceTests
 
         Assert.Empty(result);
     }
+
+    [Fact]
+    public async Task GetProductAsync_ReturnsDto_WhenFound()
+    {
+        _repoMock.Setup(r => r.GetByIdAsync(1))
+            .ReturnsAsync(new Product { Id = 1, Name = "Widget", Category = "Tools", Price = 9.99m, CreatedAt = new DateTime(2024, 1, 15) });
+
+        var result = await _sut.GetProductAsync(1);
+
+        Assert.NotNull(result);
+        Assert.Equal("Widget", result!.Name);
+    }
+
+    [Fact]
+    public async Task GetProductAsync_ReturnsNull_WhenNotFound()
+    {
+        _repoMock.Setup(r => r.GetByIdAsync(99)).ReturnsAsync((Product?)null);
+
+        var result = await _sut.GetProductAsync(99);
+
+        Assert.Null(result);
+    }
 }

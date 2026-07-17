@@ -41,17 +41,17 @@ commerce-app-lab/
 
 ## Status
 
-Milestone 2 is done: the Identity microservice (ASP.NET Core Identity + JWT — see [services/Identity/README.md](services/Identity/README.md)) and Angular login/register/account pages with a route guard are working, alongside milestone 1's Catalog microservice and product browsing/search. See [ROADMAP.md](ROADMAP.md) for what's next.
+Milestone 3 is done: Cart and Order microservices behind a YARP API Gateway ([services/Gateway](services/Gateway/README.md)), with real service-to-service REST calls — Cart calls Catalog to resolve product info, Order calls Cart to read and clear the cart during checkout. The Angular storefront now has Add to Cart, a cart page, and checkout/order-history pages, and calls everything through the gateway instead of individual service ports. See [ROADMAP.md](ROADMAP.md) for what's next.
 
 ## Getting started
 
 **Backend + infra (Docker Compose):**
 
 ```bash
-docker-compose up --build db redis catalog-api identity-api
+docker-compose up --build
 ```
 
-Catalog API at `http://localhost:5001`, Identity API at `http://localhost:5002` (Swagger at `/swagger` on both, in Development).
+Everything goes through the gateway at `http://localhost:5000`. Individual services are still reachable directly for debugging/Swagger: Catalog `5001`, Identity `5002`, Cart `5003`, Order `5004` (Swagger at `/swagger` on each, in Development).
 
 **Frontend:**
 
@@ -61,4 +61,4 @@ npm install
 npx ng serve storefront   # http://localhost:4200, or: npx ng serve admin
 ```
 
-Each backend service documents its own run/migration instructions in its own README as it lands: [Catalog](services/Catalog/README.md), [Identity](services/Identity/README.md).
+Each backend service documents its own run/migration instructions in its own README: [Catalog](services/Catalog/README.md), [Identity](services/Identity/README.md), [Cart](services/Cart/README.md), [Order](services/Order/README.md), [Gateway](services/Gateway/README.md).

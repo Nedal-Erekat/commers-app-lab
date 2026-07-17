@@ -51,5 +51,25 @@ public class CachedProductRepository : IProductRepository
     public Task<IReadOnlyList<Product>> SearchByNameAsync(string term)
         => _inner.SearchByNameAsync(term);
 
+    public async Task<Product?> GetByIdAsync(int id)
+    {
+        string key = $"product_{id}";
+
+        var cached = await _cache.GetStringAsync(key);
+        if (cached is not null)
+            return JsonSerializer.Deserialize<Product>(cached, JsonOptions);
+
+        var product = await _inner.GetByIdAsync(id);
+        if (product is null)
+            return null;
+
+        await _cache.SetStringAsync(
+            key,
+            JsonSerializer.Serialize(product, JsonOptions),
+            new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) });
+
+        return product;
+    }
+
     private record CachedPage(List<Product> Data, int TotalCount);
 }

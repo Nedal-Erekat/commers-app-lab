@@ -48,4 +48,13 @@ public class ProductsController : ControllerBase
         var results = await _productService.SearchProductsAsync(q);
         return Ok(results);
     }
+
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        Response.Headers["X-Served-By"] = Environment.MachineName;
+
+        var product = await _productService.GetProductAsync(id);
+        return product is null ? NotFound() : Ok(product);
+    }
 }

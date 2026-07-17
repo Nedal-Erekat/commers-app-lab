@@ -1,0 +1,21 @@
+<section>
+  <h2>Your Orders</h2>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (orders().length === 0) {
+    <p>No orders yet.</p>
+  } @else {
+    <ul>
+      @for (order of orders(); track order.id) {
+        <li>
+          <a [routerLink]="['/orders', order.id]">
+            {{ order.createdAt | date: 'medium' }} — {{ order.status }} — {{ order.totalAmount | currency }}
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</section>

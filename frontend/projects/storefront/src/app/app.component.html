@@ -4,6 +4,8 @@
     <nav>
       <a routerLink="/">Products</a>
       @if (isAuthenticated()) {
+        <a routerLink="/cart">Cart</a>
+        <a routerLink="/orders">Orders</a>
         <a routerLink="/account">{{ currentUser()?.email }}</a>
       } @else {
         <a routerLink="/login">Log in</a>

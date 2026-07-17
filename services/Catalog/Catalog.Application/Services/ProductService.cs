@@ -25,4 +25,10 @@ public class ProductService
         var products = await _repository.SearchByNameAsync(term);
         return products.Select(p => new ProductDto(p.Id, p.Name, p.Category, p.Price, p.CreatedAt)).ToList();
     }
+
+    public async Task<ProductDto?> GetProductAsync(int id)
+    {
+        var product = await _repository.GetByIdAsync(id);
+        return product is null ? null : new ProductDto(product.Id, product.Name, product.Category, product.Price, product.CreatedAt);
+    }
 }

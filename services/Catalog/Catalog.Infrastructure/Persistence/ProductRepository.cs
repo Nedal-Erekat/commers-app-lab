@@ -35,4 +35,9 @@ public class ProductRepository : IProductRepository
             .Take(20)
             .ToListAsync();
     }
+
+    public async Task<Product?> GetByIdAsync(int id)
+    {
+        return await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+    }
 }
