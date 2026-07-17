@@ -7,7 +7,7 @@ import { PagedResult, Product } from '../models/product';
 @Injectable({ providedIn: 'root' })
 export class ProductService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/api/products`;
+  private readonly baseUrl = `${environment.catalogApiUrl}/api/products`;
 
   getProducts(page = 1, pageSize = 20): Observable<PagedResult<Product>> {
     return this.http.get<PagedResult<Product>>(this.baseUrl, {

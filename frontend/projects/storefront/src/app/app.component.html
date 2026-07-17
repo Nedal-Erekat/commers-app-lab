@@ -1,4 +1,16 @@
 <main>
-  <h1>Commerce App Lab — Storefront</h1>
+  <header class="site-header">
+    <h1>Commerce App Lab — Storefront</h1>
+    <nav>
+      <a routerLink="/">Products</a>
+      @if (isAuthenticated()) {
+        <a routerLink="/account">{{ currentUser()?.email }}</a>
+      } @else {
+        <a routerLink="/login">Log in</a>
+        <a routerLink="/register">Register</a>
+      }
+    </nav>
+  </header>
+
   <router-outlet />
 </main>

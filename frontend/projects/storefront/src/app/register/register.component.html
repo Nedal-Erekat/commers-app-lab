@@ -1,0 +1,34 @@
+<section class="auth-form">
+  <h2>Register</h2>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      Email
+      <input type="email" formControlName="email" />
+    </label>
+
+    <label>
+      Password
+      <input type="password" formControlName="password" />
+    </label>
+
+    <label>
+      Confirm password
+      <input type="password" formControlName="confirmPassword" />
+    </label>
+
+    @if (form.errors?.['passwordMismatch'] && form.get('confirmPassword')?.touched) {
+      <p class="error">Passwords do not match.</p>
+    }
+
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+
+    <button type="submit" [disabled]="form.invalid || submitting()">
+      {{ submitting() ? 'Creating account…' : 'Register' }}
+    </button>
+  </form>
+
+  <p>Already have an account? <a routerLink="/login">Log in</a></p>
+</section>

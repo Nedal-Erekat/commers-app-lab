@@ -1,0 +1,9 @@
+<section class="account">
+  <h2>Account</h2>
+
+  @if (user(); as u) {
+    <p>Email: {{ u.email }}</p>
+    <p>Roles: {{ u.roles.join(', ') }}</p>
+    <button type="button" (click)="logout()">Log out</button>
+  }
+</section>

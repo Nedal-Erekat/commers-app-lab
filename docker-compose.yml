@@ -41,7 +41,20 @@ services:
       redis:
         condition: service_healthy
 
-  # identity-api:       # milestone 2
+  identity-api:
+    build: ./services/Identity
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=db,1433;Database=IdentityDb;User Id=sa;Password=YourPassword123;TrustServerCertificate=True
+      - Jwt__Key=NrQlrM3IEtEuIi0Hjw4P6+5GMAoIIMgGHQNLsd+OjDRiYu39VkUVgOOsvsvYYTJ/
+      - Jwt__Issuer=commerce-app-lab-identity
+      - Jwt__Audience=commerce-app-lab
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5002:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
   # cart-api:           # milestone 3
   # order-api:          # milestone 3
   # gateway:             # milestone 3

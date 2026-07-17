@@ -41,17 +41,17 @@ commerce-app-lab/
 
 ## Status
 
-Milestone 1 is done: the Catalog microservice (ASP.NET Core 10, EF Core 10, Redis cache-aside — see [services/Catalog/README.md](services/Catalog/README.md)) and the Angular storefront's product browsing/search page are both working. See [ROADMAP.md](ROADMAP.md) for what's next.
+Milestone 2 is done: the Identity microservice (ASP.NET Core Identity + JWT — see [services/Identity/README.md](services/Identity/README.md)) and Angular login/register/account pages with a route guard are working, alongside milestone 1's Catalog microservice and product browsing/search. See [ROADMAP.md](ROADMAP.md) for what's next.
 
 ## Getting started
 
 **Backend + infra (Docker Compose):**
 
 ```bash
-docker-compose up --build db redis catalog-api
+docker-compose up --build db redis catalog-api identity-api
 ```
 
-The Catalog API is reachable at `http://localhost:5001` (Swagger at `/swagger` in Development).
+Catalog API at `http://localhost:5001`, Identity API at `http://localhost:5002` (Swagger at `/swagger` on both, in Development).
 
 **Frontend:**
 
@@ -61,4 +61,4 @@ npm install
 npx ng serve storefront   # http://localhost:4200, or: npx ng serve admin
 ```
 
-Each backend service documents its own run/migration instructions in its own README as it lands (see [services/Catalog/README.md](services/Catalog/README.md) for the first one).
+Each backend service documents its own run/migration instructions in its own README as it lands: [Catalog](services/Catalog/README.md), [Identity](services/Identity/README.md).

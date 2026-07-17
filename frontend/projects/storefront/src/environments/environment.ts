@@ -1,3 +1,4 @@
 export const environment = {
-  apiUrl: 'http://localhost:5001'
+  catalogApiUrl: 'http://localhost:5001',
+  identityApiUrl: 'http://localhost:5002'
 };
