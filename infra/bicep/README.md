@@ -8,7 +8,7 @@ Provisions the Azure footprint: AKS (single small node pool, free control plane)
 
 | Resource | SKU | Why |
 |----------|-----|-----|
-| AKS | 1× `Standard_B2s` node, free control plane tier | Hosts all 7 services |
+| AKS | 1× `Standard_B2s` node, free control plane tier | Hosts all 8 services |
 | Container Registry | Basic | Images built via `az acr build` (no local Docker needed) |
 | Azure SQL (logical server) | 4× Basic database | One DB per service: CatalogDb, IdentityDb, CartDb, OrderDb |
 | Azure Cache for Redis | Basic C0 | Catalog's cache-aside |
@@ -23,12 +23,13 @@ Requires: `az` CLI (logged in — `az login`), `kubectl`, `jq`, `envsubst` (from
 ```bash
 export RESOURCE_GROUP=commerce-app-lab-rg
 export SQL_ADMIN_PASSWORD='choose one meeting Azure SQL complexity rules'
+export ANTHROPIC_API_KEY='sk-ant-...'
 ./infra/bicep/deploy.sh
 ```
 
-This: creates the resource group, deploys `main.bicep`, builds and pushes all 6 images via `az acr build` (server-side — no local Docker daemon required), fetches AKS credentials, creates the `app-secrets` k8s Secret from the deployment outputs, and applies every manifest in `infra/k8s/`.
+This: creates the resource group, deploys `main.bicep`, builds and pushes all 8 images via `az acr build` (server-side — no local Docker daemon required), fetches AKS credentials, creates the `app-secrets` k8s Secret from the deployment outputs, and applies every manifest in `infra/k8s/`.
 
-Or trigger it from GitHub Actions: **Actions → Deploy to Azure → Run workflow** (needs the `AZURE_CREDENTIALS`, `SQL_ADMIN_PASSWORD`, and `JWT_KEY` repo secrets — see [`.github/workflows/deploy-azure.yml`](../../.github/workflows/deploy-azure.yml)).
+Or trigger it from GitHub Actions: **Actions → Deploy to Azure → Run workflow** (needs the `AZURE_CREDENTIALS`, `SQL_ADMIN_PASSWORD`, `JWT_KEY`, and `ANTHROPIC_API_KEY` repo secrets — see [`.github/workflows/deploy-azure.yml`](../../.github/workflows/deploy-azure.yml)).
 
 ## Tearing down
 

@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [Catalog, Identity, Cart, Order, OrderProcessing, Mcp]
+        service: [Catalog, Identity, Cart, Order, OrderProcessing, Mcp, Assistant]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
@@ -56,4 +56,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate docker-compose.yml
+        env:
+          ANTHROPIC_API_KEY: dummy-for-config-validation-only
         run: docker compose config --quiet

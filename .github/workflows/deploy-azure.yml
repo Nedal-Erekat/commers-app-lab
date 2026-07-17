@@ -8,7 +8,7 @@ name: Deploy to Azure
 # NOT RUN in this session — no Azure credentials available here. Review before
 # using. Requires repo secrets: AZURE_CREDENTIALS (service principal with
 # Contributor on the target subscription/RG — see azure/login@v2 docs for the
-# JSON shape), SQL_ADMIN_PASSWORD, JWT_KEY.
+# JSON shape), SQL_ADMIN_PASSWORD, JWT_KEY, ANTHROPIC_API_KEY.
 
 on:
   workflow_dispatch:
@@ -41,4 +41,5 @@ jobs:
           RESOURCE_GROUP: ${{ inputs.resource_group }}
           SQL_ADMIN_PASSWORD: ${{ secrets.SQL_ADMIN_PASSWORD }}
           JWT_KEY: ${{ secrets.JWT_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: bash infra/bicep/deploy.sh

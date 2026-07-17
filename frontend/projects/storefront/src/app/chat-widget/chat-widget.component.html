@@ -1,0 +1,41 @@
+@if (isOpen()) {
+  <section class="panel">
+    <header>
+      <span>Shopping Assistant</span>
+      <button type="button" (click)="toggle()" aria-label="Close chat">Close</button>
+    </header>
+
+    <div class="messages">
+      @if (messages().length === 0) {
+        <p class="hint">Ask me to find products, check an order, or add something to your cart.</p>
+      }
+      @for (message of messages(); track $index) {
+        <p class="message" [class.user]="message.role === 'user'" [class.assistant]="message.role === 'assistant'">
+          {{ message.text }}
+        </p>
+      }
+      @if (sending()) {
+        <p class="hint">Thinking…</p>
+      }
+      @if (error()) {
+        <p class="error">{{ error() }}</p>
+      }
+    </div>
+
+    <form class="composer" (ngSubmit)="send()">
+      <input
+        type="text"
+        placeholder="Ask the assistant…"
+        [ngModel]="draft()"
+        (ngModelChange)="draft.set($event)"
+        name="draft"
+        [disabled]="sending()"
+      />
+      <button type="submit" [disabled]="sending() || !draft().trim()">Send</button>
+    </form>
+  </section>
+}
+
+<button type="button" class="toggle" (click)="toggle()" aria-label="Toggle chat">
+  {{ isOpen() ? 'Close' : 'Chat' }}
+</button>

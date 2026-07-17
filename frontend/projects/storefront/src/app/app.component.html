@@ -15,4 +15,8 @@
   </header>
 
   <router-outlet />
+
+  @if (isAuthenticated()) {
+    <app-chat-widget />
+  }
 </main>

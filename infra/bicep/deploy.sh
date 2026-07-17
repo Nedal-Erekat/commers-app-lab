@@ -6,7 +6,7 @@
 # before running for real. Requires: az CLI (logged in), kubectl, envsubst.
 #
 # Usage:
-#   RESOURCE_GROUP=commerce-app-lab-rg SQL_ADMIN_PASSWORD='...' ./deploy.sh
+#   RESOURCE_GROUP=commerce-app-lab-rg SQL_ADMIN_PASSWORD='...' ANTHROPIC_API_KEY='sk-ant-...' ./deploy.sh
 #
 # Optional env vars: LOCATION (default eastus), NAME_PREFIX (default commerceapplab),
 # JWT_KEY (generated with openssl if not supplied).
@@ -18,6 +18,7 @@ LOCATION="${LOCATION:-eastus}"
 NAME_PREFIX="${NAME_PREFIX:-commerceapplab}"
 SQL_ADMIN_LOGIN="${SQL_ADMIN_LOGIN:-commerceapplabadmin}"
 SQL_ADMIN_PASSWORD="${SQL_ADMIN_PASSWORD:?Set SQL_ADMIN_PASSWORD (Azure SQL password complexity rules apply)}"
+ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:?Set ANTHROPIC_API_KEY (the assistant service needs it to call Claude)}"
 JWT_KEY="${JWT_KEY:-$(openssl rand -base64 48)}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -48,7 +49,7 @@ REDIS_KEY=$(az redis list-keys --name "$REDIS_NAME" --resource-group "$RESOURCE_
 SB_KEY=$(az servicebus namespace authorization-rule keys list --ids "$SB_AUTH_RULE_ID" --query primaryKey -o tsv)
 
 echo "==> Building and pushing images via ACR Tasks (no local Docker needed)"
-for svc in Catalog:catalog-api Identity:identity-api Cart:cart-api Order:order-api OrderProcessing:order-processing-worker Gateway:gateway Mcp:mcp-server; do
+for svc in Catalog:catalog-api Identity:identity-api Cart:cart-api Order:order-api OrderProcessing:order-processing-worker Gateway:gateway Mcp:mcp-server Assistant:assistant-api; do
   DIR="${svc%%:*}"
   IMAGE="${svc##*:}"
   echo "  -- $IMAGE"
@@ -70,12 +71,13 @@ kubectl create secret generic app-secrets \
   --from-literal=RedisConnectionString="${REDIS_HOST}:6380,password=${REDIS_KEY},ssl=True,abortConnect=False" \
   --from-literal=JwtKey="${JWT_KEY}" \
   --from-literal=ServiceBusConnectionString="Endpoint=sb://${SB_NAMESPACE_FQDN}/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=${SB_KEY}" \
+  --from-literal=AnthropicApiKey="${ANTHROPIC_API_KEY}" \
   --dry-run=client -o yaml | kubectl apply -f -
 
 echo "==> Applying manifests"
 kubectl apply -f "$REPO_ROOT/infra/k8s/configmap.yaml"
 export ACR_LOGIN_SERVER
-for manifest in catalog identity cart order order-processing gateway mcp; do
+for manifest in catalog identity cart order order-processing gateway mcp assistant; do
   envsubst '${ACR_LOGIN_SERVER}' < "$REPO_ROOT/infra/k8s/$manifest.yaml" | kubectl apply -f -
 done
 

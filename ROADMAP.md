@@ -31,8 +31,8 @@ Each service owns its own EF Core context, its own database (or schema), and its
 | 4 | Order → Azure Service Bus → async inventory/notification handler | ✅ done | Event-driven/distributed patterns |
 | 5 | Containerize all services, deploy to Azure: AKS (small node pool) + Azure SQL (Basic) + Azure Cache for Redis (Basic) + ACR, IaC via Bicep, GitHub Actions CI/CD | ✅ written, unverified | Azure/AKS |
 | 6 | .NET MCP server exposing tools: `search-products`, `get-order-status`, `recommend-products`, `add-to-cart`; hosted on Azure | ✅ built + verified locally, not yet hosted on Azure | MCP via .NET & Azure |
-| 7 | AI shopping assistant: chat widget in Angular → assistant backend as an MCP client → calls an LLM to decide which MCP tool to invoke (agentic loop) | next up | Hands-on AI/LLM |
-| 8 | Admin portal features in Angular (manage products/orders, role-based views) | planned | Enterprise/portal application development |
+| 7 | AI shopping assistant: chat widget in Angular → assistant backend as an MCP client → calls an LLM to decide which MCP tool to invoke (agentic loop) | ✅ built + verified as far as sandbox allows, no real Claude reply yet | Hands-on AI/LLM |
+| 8 | Admin portal features in Angular (manage products/orders, role-based views) | next up | Enterprise/portal application development |
 | 9 | Load testing (k6), observability, Azure teardown script, README + case-study write-up | planned | Interview-ready deliverable |
 
 ## Azure cost control

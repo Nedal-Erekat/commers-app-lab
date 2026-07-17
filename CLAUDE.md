@@ -10,9 +10,9 @@ A practice commerce platform built specifically to gain hands-on, interview-read
 
 **Source of truth for scope and sequencing:** [ROADMAP.md](ROADMAP.md). Always check it before starting work — build the current milestone, not ahead of it. Update its status column as milestones complete.
 
-**Current milestone:** 6 (.NET MCP server) — done, and actually verified: a live MCP JSON-RPC handshake (`initialize` → `tools/list` → `tools/call`) was run against the real server in this session, not just unit tests. Next up: milestone 7 (AI shopping assistant, using this MCP server as an MCP client). Milestone 5's Azure IaC is still unverified against real Azure — see its note below.
+**Current milestone:** 7 (AI shopping assistant) — done, as far as this sandbox allows. `services/Assistant` is a real MCP client + agentic tool-use loop over the Anthropic Messages API, with an Angular chat widget. Verified locally with a manually-minted JWT: auth, MCP tool discovery, and the Anthropic request itself all work end-to-end (confirmed by a well-formed `authentication_error` from the real API) — the only thing not verified is an actual Claude reply, since this environment has no `ANTHROPIC_API_KEY`. Next up: milestone 8 (Angular admin portal). Milestone 5's Azure IaC is still unverified against real Azure — see its note below.
 
-Milestones 6 and 7 (MCP + AI) are being built on the `feature/ai-mcp` branch, not `main` — `main` stops at milestone 5. Keep working on `feature/ai-mcp` until told to merge.
+Milestones 6 and 7 (MCP + AI) were built on the `feature/ai-mcp` branch, not `main` — `main` stops at milestone 5. Keep working on `feature/ai-mcp` until told to merge.
 
 The Angular storefront now calls everything through the Gateway (`http://localhost:5000`) instead of individual service ports — `environment.ts`/`environment.development.ts` expose a single `apiUrl`. Keep it that way; don't reintroduce per-service URLs in the frontend.
 
@@ -29,7 +29,7 @@ The Angular storefront now calls everything through the Gateway (`http://localho
 | API Gateway | YARP |
 | Messaging | Azure Service Bus (order events) |
 | Cloud | Azure — AKS (small node pool), ACR, Bicep IaC |
-| AI | .NET MCP server (`ModelContextProtocol`/`.AspNetCore` SDK v1.4.1, Streamable HTTP transport) exposing commerce tools; LLM-driven shopping assistant as an MCP client |
+| AI | .NET MCP server (`ModelContextProtocol`/`.AspNetCore` SDK v1.4.1, Streamable HTTP transport) exposing commerce tools; `services/Assistant` as the MCP client, agentic loop over the raw Anthropic Messages API (`System.Text.Json.Nodes`, no SDK — see its README) |
 | Containers | Docker Compose (local dev), AKS (cloud) |
 
 > Note: this project targets **.NET 10** (current LTS), not .NET 9 like dotnet-scale-lab — .NET 9 is STS and past its support window as of mid-2026. Reuse ScaleLab's patterns, not its exact package versions.
@@ -49,7 +49,8 @@ commerce-app-lab/
 │   ├── Order/
 │   ├── OrderProcessing/   ← Worker Service (no HTTP), consumes Service Bus queue
 │   ├── Gateway/
-│   └── Mcp/               ← MCP server (Mcp.Server) — calls the Gateway, same as the frontend
+│   ├── Mcp/               ← MCP server (Mcp.Server) — calls the Gateway, same as the frontend
+│   └── Assistant/         ← MCP client + agentic loop over Claude; calls Mcp.Server, not the Gateway
 ├── frontend/               ← Angular workspace (npm install at this level)
 │   └── projects/
 │       ├── storefront/
@@ -64,7 +65,9 @@ Each service under `services/` gets its own `.sln`, its own EF Core `DbContext`/
 
 Cross-service contracts (event payloads, HTTP client DTOs) are deliberately duplicated per-service rather than shared via a common library — each service owns its own copy of what it needs from another service's API. Keep doing this; don't introduce a shared contracts package.
 
-The MCP server (`services/Mcp`) never calls Catalog/Cart/Order directly — it goes through the Gateway, exactly like the Angular apps. Its `get-order-status` and `add-to-cart` tools take a `bearerToken` as a plain string argument rather than the MCP server implementing OAuth itself; milestone 7's AI assistant backend will need to obtain that JWT (via Identity's login) and pass it through when it calls those two tools as an MCP client.
+The MCP server (`services/Mcp`) never calls Catalog/Cart/Order directly — it goes through the Gateway, exactly like the Angular apps. Its `get-order-status` and `add-to-cart` tools take a `bearerToken` as a plain string argument rather than the MCP server implementing OAuth itself.
+
+The Assistant service (`services/Assistant`) is that MCP client. It strips `bearerToken` out of the tool schema it shows Claude and injects the caller's real JWT (from the `Authorization` header on `POST /api/chat`) only when actually invoking `get-order-status`/`add-to-cart` — the model never sees or reasons about the token, only which tool to call and with what business arguments. Conversation history is in-memory per `conversationId` (`InMemoryConversationStore`) — lost on restart, which is fine for a lab.
 
 Locally, Azure Service Bus is the official [Service Bus emulator](https://learn.microsoft.com/azure/service-bus-messaging/overview-emulator) run via Docker Compose (`sb-emulator` + its `sqledge` metadata store), not a real Azure namespace.
 
@@ -73,6 +76,10 @@ Every ASP.NET Core service (not the OrderProcessing worker — it has no HTTP) e
 `.github/workflows/deploy-azure.yml` and `teardown-azure.yml` are `workflow_dispatch`-only (never on push) since they cost real money — don't change that trigger without being asked.
 
 Milestone 5's Bicep (`infra/bicep/main.bicep`) has never been run against real Azure — no Azure CLI/credentials were available when it was written. It's reviewed-by-eye, not compiled. Before relying on it, run `az deployment group validate` and expect to fix schema drift, particularly the AKS `sku` block (flagged inline).
+
+`docker-compose.yml` requires `ANTHROPIC_API_KEY` in the environment (`${ANTHROPIC_API_KEY:?...}`) — `docker-compose up` fails fast with a clear message if it's unset, rather than starting a broken assistant service.
+
+To test a JWT-protected endpoint without a live Identity service/SQL Server (useful when SQL Server isn't available): mint an HS256 token by hand with the same dev signing key every service shares (`appsettings.json`'s `Jwt:Key`) — standard header/payload/HMAC-SHA256 base64url, no library needed for HS256. This is how milestone 7's Assistant service got exercised end-to-end without Identity running.
 
 ---
 

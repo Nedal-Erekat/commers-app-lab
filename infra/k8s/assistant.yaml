@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: assistant-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: assistant-api }
+  template:
+    metadata:
+      labels: { app: assistant-api }
+    spec:
+      containers:
+        - name: assistant-api
+          image: ${ACR_LOGIN_SERVER}/assistant-api:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef: { name: app-config }
+          env:
+            - name: Jwt__Key
+              valueFrom: { secretKeyRef: { name: app-secrets, key: JwtKey } }
+            - name: Mcp__BaseUrl
+              value: "http://mcp-server"
+            - name: Anthropic__ApiKey
+              valueFrom: { secretKeyRef: { name: app-secrets, key: AnthropicApiKey } }
+          resources:
+            requests: { cpu: 50m, memory: 96Mi }
+            limits: { cpu: 250m, memory: 256Mi }
+          readinessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 20
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: assistant-api
+spec:
+  selector: { app: assistant-api }
+  ports:
+    - port: 80
+      targetPort: 8080
