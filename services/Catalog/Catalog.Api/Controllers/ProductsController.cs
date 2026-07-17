@@ -18,14 +18,15 @@ public class ProductsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetProducts(
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 50)
+        [FromQuery] int pageSize = 50,
+        [FromQuery] string? category = null)
     {
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 1, 100);
 
         Response.Headers["X-Served-By"] = Environment.MachineName;
 
-        var result = await _productService.GetProductsAsync(page, pageSize);
+        var result = await _productService.GetProductsAsync(page, pageSize, category);
 
         return Ok(new
         {

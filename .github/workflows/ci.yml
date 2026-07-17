@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [Catalog, Identity, Cart, Order, OrderProcessing]
+        service: [Catalog, Identity, Cart, Order, OrderProcessing, Mcp]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4

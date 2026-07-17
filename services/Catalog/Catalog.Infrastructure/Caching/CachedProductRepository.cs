@@ -21,9 +21,11 @@ public class CachedProductRepository : IProductRepository
         _cache = cache;
     }
 
-    public async Task<(IReadOnlyList<Product> Data, int TotalCount, string Source)> GetPagedAsync(int page, int pageSize)
+    public async Task<(IReadOnlyList<Product> Data, int TotalCount, string Source)> GetPagedAsync(int page, int pageSize, string? category = null)
     {
-        string key = $"products_page_{page}_size_{pageSize}";
+        string key = category is null
+            ? $"products_page_{page}_size_{pageSize}"
+            : $"products_page_{page}_size_{pageSize}_category_{category}";
 
         var cached = await _cache.GetStringAsync(key);
         if (cached is not null)
@@ -32,7 +34,7 @@ public class CachedProductRepository : IProductRepository
             return (hit.Data, hit.TotalCount, "Cache");
         }
 
-        var (data, totalCount, source) = await _inner.GetPagedAsync(page, pageSize);
+        var (data, totalCount, source) = await _inner.GetPagedAsync(page, pageSize, category);
 
         var options = new DistributedCacheEntryOptions
         {

@@ -8,13 +8,13 @@ Provisions the Azure footprint: AKS (single small node pool, free control plane)
 
 | Resource | SKU | Why |
 |----------|-----|-----|
-| AKS | 1× `Standard_B2s` node, free control plane tier | Hosts all 6 services |
+| AKS | 1× `Standard_B2s` node, free control plane tier | Hosts all 7 services |
 | Container Registry | Basic | Images built via `az acr build` (no local Docker needed) |
 | Azure SQL (logical server) | 4× Basic database | One DB per service: CatalogDb, IdentityDb, CartDb, OrderDb |
 | Azure Cache for Redis | Basic C0 | Catalog's cache-aside |
 | Azure Service Bus | Basic + `order-placed` queue | Order → OrderProcessing |
 
-Rough always-on cost if left running: AKS node ~$15/mo, 4× SQL Basic ~$20/mo, Redis Basic C0 ~$16/mo, Service Bus Basic ~$0.05/mo, ACR Basic ~$5/mo, plus the Gateway's LoadBalancer public IP (~$4/mo) once `infra/k8s/gateway.yaml` is applied. This is why the deploy/teardown scripts exist — spin up for a demo, tear down after, not left running.
+Rough always-on cost if left running: AKS node ~$15/mo, 4× SQL Basic ~$20/mo, Redis Basic C0 ~$16/mo, Service Bus Basic ~$0.05/mo, ACR Basic ~$5/mo, plus two LoadBalancer public IPs (~$4/mo each) for the Gateway and MCP server. This is why the deploy/teardown scripts exist — spin up for a demo, tear down after, not left running.
 
 ## Deploying
 

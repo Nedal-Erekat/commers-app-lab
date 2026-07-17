@@ -91,4 +91,15 @@ public class ProductServiceTests
         Assert.True(result);
         _repoMock.Verify(r => r.DecrementStockAsync(1, 2), Times.Once);
     }
+
+    [Fact]
+    public async Task GetProductsAsync_ForwardsCategoryToRepository()
+    {
+        _repoMock.Setup(r => r.GetPagedAsync(1, 10, "Tools"))
+            .ReturnsAsync((new List<Product>(), 0, "Database"));
+
+        await _sut.GetProductsAsync(1, 10, "Tools");
+
+        _repoMock.Verify(r => r.GetPagedAsync(1, 10, "Tools"), Times.Once);
+    }
 }

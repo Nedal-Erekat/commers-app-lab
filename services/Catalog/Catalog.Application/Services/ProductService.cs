@@ -13,9 +13,9 @@ public class ProductService
         _repository = repository;
     }
 
-    public async Task<PagedResult<Product>> GetProductsAsync(int page, int pageSize)
+    public async Task<PagedResult<Product>> GetProductsAsync(int page, int pageSize, string? category = null)
     {
-        var (data, totalCount, source) = await _repository.GetPagedAsync(page, pageSize);
+        var (data, totalCount, source) = await _repository.GetPagedAsync(page, pageSize, category);
         int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
         return new PagedResult<Product>(data, page, pageSize, totalCount, totalPages, source);
     }

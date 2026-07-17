@@ -6,7 +6,7 @@ ASP.NET Core 10 Web API, Clean Architecture (Domain → Application → Infrastr
 
 | Method | Route | Description |
 |--------|-------|-------------|
-| GET | `/api/products?page=&pageSize=` | Paginated product list (cache-aside via Redis) |
+| GET | `/api/products?page=&pageSize=&category=` | Paginated product list, optionally filtered by exact category (cache-aside via Redis) — the `category` filter backs the MCP server's `recommend-products` tool |
 | GET | `/api/products/search?q=` | Prefix search by name (bypasses cache) |
 | GET | `/api/products/{id}` | Single product, cache-aside via Redis — used by the Cart service |
 | POST | `/api/products/{id}/decrement-stock` | `{ quantity }` → decrements stock; 400 if insufficient or not found. Invalidates that product's cache entry. Called by the OrderProcessing worker after checkout. |

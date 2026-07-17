@@ -141,6 +141,15 @@ services:
       - cart-api
       - order-api
 
+  mcp-server:
+    build: ./services/Mcp
+    environment:
+      - Gateway__BaseUrl=http://gateway:8080
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5005:8080"
+    depends_on:
+      - gateway
+
   # storefront:          # milestone 1 (run locally via `ng serve` for now)
   # admin:               # milestone 8
-  # mcp-server:          # milestone 6

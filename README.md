@@ -31,20 +31,20 @@ commerce-app-lab/
 │   ├── Order/
 │   ├── OrderProcessing/ ← Worker Service, no HTTP — consumes order-placed events
 │   ├── Gateway/
-│   └── Mcp/
+│   └── Mcp/             ← MCP server exposing commerce tools over Streamable HTTP
 ├── frontend/            ← Angular workspace
 │   └── projects/
 │       ├── storefront/
 │       └── admin/
 └── infra/
     ├── bicep/                 ← Azure IaC (AKS, ACR, SQL, Redis, Service Bus) + deploy/teardown scripts
-    ├── k8s/                   ← Kubernetes manifests for all 6 services
+    ├── k8s/                   ← Kubernetes manifests for all 7 services
     └── servicebus-emulator/   ← local Service Bus emulator config (queue definitions)
 ```
 
 ## Status
 
-Milestone 5 is done: Bicep IaC for the full Azure footprint (AKS, ACR, Azure SQL, Azure Cache for Redis, Service Bus), Kubernetes manifests for all 6 services, and GitHub Actions workflows to deploy/tear it down on demand — see [infra/bicep/README.md](infra/bicep/README.md). **This has not been run against real Azure** — the environment this was built in has no Azure CLI or credentials, so review before deploying. See [ROADMAP.md](ROADMAP.md) for what's next.
+Milestone 6 is done: a .NET MCP server ([services/Mcp](services/Mcp/README.md)) exposing four commerce tools — `search-products`, `recommend-products`, `get-order-status`, `add-to-cart` — over the Streamable HTTP transport, calling everything through the Gateway. This one was actually run and verified with a real MCP JSON-RPC handshake (`initialize` → `tools/list` → `tools/call`) in this session, not just unit tested. See [ROADMAP.md](ROADMAP.md) for what's next. (Milestone 5's Azure deployment still hasn't been run against real Azure — see [infra/bicep/README.md](infra/bicep/README.md).)
 
 ## Getting started
 
@@ -54,7 +54,7 @@ Milestone 5 is done: Bicep IaC for the full Azure footprint (AKS, ACR, Azure SQL
 docker-compose up --build
 ```
 
-Everything goes through the gateway at `http://localhost:5000`. Individual services are still reachable directly for debugging/Swagger: Catalog `5001`, Identity `5002`, Cart `5003`, Order `5004` (Swagger at `/swagger` on each, in Development). `order-processing-worker` has no HTTP endpoint — watch its logs to see it consuming `order-placed` messages.
+Everything goes through the gateway at `http://localhost:5000`. Individual services are still reachable directly for debugging/Swagger: Catalog `5001`, Identity `5002`, Cart `5003`, Order `5004`, MCP server `5005` (Swagger at `/swagger` on the REST services, in Development). `order-processing-worker` has no HTTP endpoint — watch its logs to see it consuming `order-placed` messages.
 
 **Frontend:**
 
@@ -64,7 +64,7 @@ npm install
 npx ng serve storefront   # http://localhost:4200, or: npx ng serve admin
 ```
 
-Each backend service documents its own run/migration instructions in its own README: [Catalog](services/Catalog/README.md), [Identity](services/Identity/README.md), [Cart](services/Cart/README.md), [Order](services/Order/README.md), [OrderProcessing](services/OrderProcessing/README.md), [Gateway](services/Gateway/README.md).
+Each backend service documents its own run/migration instructions in its own README: [Catalog](services/Catalog/README.md), [Identity](services/Identity/README.md), [Cart](services/Cart/README.md), [Order](services/Order/README.md), [OrderProcessing](services/OrderProcessing/README.md), [Gateway](services/Gateway/README.md), [Mcp](services/Mcp/README.md).
 
 **Azure:**
 

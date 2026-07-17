@@ -48,7 +48,7 @@ REDIS_KEY=$(az redis list-keys --name "$REDIS_NAME" --resource-group "$RESOURCE_
 SB_KEY=$(az servicebus namespace authorization-rule keys list --ids "$SB_AUTH_RULE_ID" --query primaryKey -o tsv)
 
 echo "==> Building and pushing images via ACR Tasks (no local Docker needed)"
-for svc in Catalog:catalog-api Identity:identity-api Cart:cart-api Order:order-api OrderProcessing:order-processing-worker Gateway:gateway; do
+for svc in Catalog:catalog-api Identity:identity-api Cart:cart-api Order:order-api OrderProcessing:order-processing-worker Gateway:gateway Mcp:mcp-server; do
   DIR="${svc%%:*}"
   IMAGE="${svc##*:}"
   echo "  -- $IMAGE"
@@ -75,7 +75,7 @@ kubectl create secret generic app-secrets \
 echo "==> Applying manifests"
 kubectl apply -f "$REPO_ROOT/infra/k8s/configmap.yaml"
 export ACR_LOGIN_SERVER
-for manifest in catalog identity cart order order-processing gateway; do
+for manifest in catalog identity cart order order-processing gateway mcp; do
   envsubst '${ACR_LOGIN_SERVER}' < "$REPO_ROOT/infra/k8s/$manifest.yaml" | kubectl apply -f -
 done
 

@@ -13,11 +13,14 @@ public class ProductRepository : IProductRepository
         _context = context;
     }
 
-    public async Task<(IReadOnlyList<Product> Data, int TotalCount, string Source)> GetPagedAsync(int page, int pageSize)
+    public async Task<(IReadOnlyList<Product> Data, int TotalCount, string Source)> GetPagedAsync(int page, int pageSize, string? category = null)
     {
-        var totalCount = await _context.Products.CountAsync();
-        var data = await _context.Products
-            .AsNoTracking()
+        var query = _context.Products.AsNoTracking();
+        if (!string.IsNullOrWhiteSpace(category))
+            query = query.Where(p => p.Category == category);
+
+        var totalCount = await query.CountAsync();
+        var data = await query
             .OrderBy(p => p.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
