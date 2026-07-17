@@ -33,7 +33,7 @@ Each service owns its own EF Core context, its own database (or schema), and its
 | 6 | .NET MCP server exposing tools: `search-products`, `get-order-status`, `recommend-products`, `add-to-cart`; hosted on Azure | ✅ built + verified locally, not yet hosted on Azure | MCP via .NET & Azure |
 | 7 | AI shopping assistant: chat widget in Angular → assistant backend as an MCP client → calls an LLM to decide which MCP tool to invoke (agentic loop) | ✅ built + verified as far as sandbox allows, no real Claude reply yet | Hands-on AI/LLM |
 | 8 | Admin portal features in Angular (manage products/orders, role-based views) | ✅ built + verified locally (JWT unit tests, Playwright guard/route checks) | Enterprise/portal application development |
-| 9 | Load testing (k6), observability, Azure teardown script, README + case-study write-up | planned | Interview-ready deliverable |
+| 9 | Load testing (k6), observability (OpenTelemetry tracing/metrics), README + case-study write-up | ✅ done — see [TESTING.md](TESTING.md) for exactly what ran live vs. was reviewed by inspection | Interview-ready deliverable |
 
 ## Azure cost control
 
