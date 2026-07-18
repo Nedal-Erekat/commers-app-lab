@@ -1,5 +1,6 @@
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AuthResponse } from '../models/auth';
@@ -9,6 +10,7 @@ const STORAGE_KEY = 'commerce-app-lab.auth';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly baseUrl = `${environment.apiUrl}/api/auth`;
 
   private readonly session = signal<AuthResponse | null>(this.readStoredSession());
@@ -32,7 +34,7 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(STORAGE_KEY);
+    if (this.isBrowser) localStorage.removeItem(STORAGE_KEY);
     this.session.set(null);
   }
 
@@ -41,11 +43,13 @@ export class AuthService {
   }
 
   private storeSession(response: AuthResponse): void {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(response));
+    if (this.isBrowser) localStorage.setItem(STORAGE_KEY, JSON.stringify(response));
     this.session.set(response);
   }
 
   private readStoredSession(): AuthResponse | null {
+    if (!this.isBrowser) return null;
+
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
 

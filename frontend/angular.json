@@ -32,7 +32,15 @@
             "styles": [
               "projects/storefront/src/styles.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "server": "projects/storefront/src/main.server.ts",
+            "security": {
+              "allowedHosts": []
+            },
+            "prerender": true,
+            "ssr": {
+              "entry": "projects/storefront/src/server.ts"
+            }
           },
           "configurations": {
             "production": {

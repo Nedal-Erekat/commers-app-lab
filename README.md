@@ -68,6 +68,16 @@ npx ng serve storefront   # http://localhost:4200
 npx ng serve admin        # http://localhost:4300
 ```
 
+The storefront is server-side rendered (Angular 19 hybrid rendering): `/` is rendered per-request,
+`/login`/`/register` are prerendered to static HTML at build time, and everything behind
+`authGuard` (`/account`, `/cart`, `/orders`) is effectively client-rendered — the server can't see
+the browser's `localStorage`-held JWT, so it always renders the logged-out state there, then the
+client hydrates and re-navigates if the user actually has a session (`ng serve` above uses CSR only;
+to exercise SSR itself: `npx ng build storefront && npm run serve:ssr:storefront`, then visit
+`http://localhost:4000`). See `projects/storefront/src/app/app.routes.server.ts` for the per-route
+config and `server.ts` for why it's `CommonEngine`, not the newer `AngularNodeAppEngine` — that one
+needs a build-manifest shape this Angular CLI version's scaffold doesn't produce.
+
 The chat widget appears bottom-right once you're logged in. Log into the admin app with the seeded admin account: `admin@commerce-app-lab.local` / `Admin123!`.
 
 Each backend service documents its own run/migration instructions in its own README: [Catalog](services/Catalog/README.md), [Identity](services/Identity/README.md), [Cart](services/Cart/README.md), [Order](services/Order/README.md), [OrderProcessing](services/OrderProcessing/README.md), [Gateway](services/Gateway/README.md), [Mcp](services/Mcp/README.md), [Assistant](services/Assistant/README.md).

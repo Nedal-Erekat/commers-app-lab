@@ -16,6 +16,8 @@ Milestones 6 and 7 (MCP + AI) were built on `feature/ai-mcp` and merged into `ma
 
 The Angular storefront now calls everything through the Gateway (`http://localhost:5000`) instead of individual service ports — `environment.ts`/`environment.development.ts` expose a single `apiUrl`. Keep it that way; don't reintroduce per-service URLs in the frontend.
 
+Post-roadmap addition: the storefront (not admin — no SEO reason to SSR an internal tool) now has Angular SSR (`ng add @angular/ssr`). Two things to know if you touch it: (1) any service reading browser-only APIs (`localStorage`, `window`, `document`) needs `isPlatformBrowser(inject(PLATFORM_ID))` guards — `AuthService` needed this fix, since the auth interceptor injects it on every HTTP call including the very first SSR render, and Node has no `localStorage`. (2) `app.routes.server.ts`'s per-route `RenderMode` only actually drives the *build-time* prerender step (confirmed: login/register get prerendered, others don't) — it does **not** get enforced at runtime by `server.ts`, because that requires `AngularNodeAppEngine`, which needs a build-manifest shape this Angular CLI version's scaffold (`CommonEngine`-based) doesn't produce; swapping it in throws "Angular app engine manifest is not set" at server startup (confirmed by trying it). Net effect: guarded routes (`account`/`cart`/`orders`) get SSR'd as their logged-out state (server can't see the browser's JWT) and self-correct via client hydration — a known, accepted trade-off of localStorage-based auth + SSR, not a bug.
+
 ---
 
 ## Tech stack
