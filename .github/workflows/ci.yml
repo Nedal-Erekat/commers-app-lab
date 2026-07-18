@@ -22,7 +22,7 @@ jobs:
       matrix:
         service: [Catalog, Identity, Cart, Order, OrderProcessing, Mcp, Assistant]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
@@ -51,7 +51,7 @@ jobs:
   gateway:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
@@ -71,7 +71,7 @@ jobs:
       matrix:
         project: [storefront, admin]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -90,7 +90,7 @@ jobs:
   compose-config:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Validate docker-compose.yml
         env:
           ANTHROPIC_API_KEY: dummy-for-config-validation-only
