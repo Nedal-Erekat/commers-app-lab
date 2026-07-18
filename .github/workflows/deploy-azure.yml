@@ -18,6 +18,14 @@ on:
         required: true
         default: "commerce-app-lab-rg"
 
+# One deploy/teardown at a time per resource group — never let deploy and teardown race each
+# other against the same Azure resources.
+concurrency:
+  group: azure-${{ inputs.resource_group }}
+
+permissions:
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest

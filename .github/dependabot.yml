@@ -1,0 +1,65 @@
+version: 2
+updates:
+  # Every service's NuGet packages — Dependabot walks the directory tree for .csproj files.
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      efcore-and-aspnet:
+        patterns:
+          - "Microsoft.EntityFrameworkCore*"
+          - "Microsoft.AspNetCore.*"
+      opentelemetry:
+        patterns:
+          - "OpenTelemetry*"
+
+  # Angular workspace (storefront + admin share one package.json).
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+    groups:
+      angular:
+        patterns:
+          - "@angular/*"
+
+  # Base images for all eight services' Dockerfiles.
+  - package-ecosystem: "docker"
+    directory: "/services/Catalog"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/services/Identity"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/services/Cart"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/services/Order"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/services/OrderProcessing"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/services/Gateway"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/services/Mcp"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/services/Assistant"
+    schedule:
+      interval: "weekly"
+
+  # The workflow files themselves (actions/checkout, github/codeql-action, etc.).
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

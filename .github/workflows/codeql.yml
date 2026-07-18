@@ -1,0 +1,61 @@
+name: CodeQL
+
+# Static security analysis for both halves of the stack: the .NET services (C#) and the two
+# Angular apps (JavaScript/TypeScript). Runs on every push/PR to main plus a weekly sweep so
+# newly-disclosed CodeQL query patterns catch code that hasn't changed recently.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "17 3 * * 1" # Mondays 03:17 UTC
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [csharp, javascript-typescript]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - if: matrix.language == 'csharp'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+
+      # No root .sln ties the eight services together (each is independently deployable), so
+      # CodeQL's autobuild can't find a single entry point — build each solution explicitly.
+      - if: matrix.language == 'csharp'
+        name: Build all .NET solutions
+        run: |
+          set -e
+          for solution in services/*/*.slnx; do
+            echo "Building $solution"
+            dotnet build "$solution" --configuration Release
+          done
+          dotnet build services/Gateway/Gateway.Api --configuration Release
+
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"

@@ -12,6 +12,15 @@ on:
         required: true
         default: "commerce-app-lab-rg"
 
+# Shares a concurrency group with deploy-azure.yml — one deploy/teardown at a time per resource
+# group. Never cancel-in-progress: don't want a queued teardown to be silently dropped, or a live
+# one interrupted mid-delete.
+concurrency:
+  group: azure-${{ inputs.resource_group }}
+
+permissions:
+  contents: read
+
 jobs:
   teardown:
     runs-on: ubuntu-latest

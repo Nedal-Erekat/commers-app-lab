@@ -1,5 +1,8 @@
 # commerce-app-lab
 
+[![CI](https://github.com/Nedal-Erekat/commers-app-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/Nedal-Erekat/commers-app-lab/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/Nedal-Erekat/commers-app-lab/actions/workflows/codeql.yml/badge.svg)](https://github.com/Nedal-Erekat/commers-app-lab/actions/workflows/codeql.yml)
+
 A practice commerce platform built to gain hands-on experience with a specific stack: **.NET microservices, Angular, Azure (AKS/App Service), MCP, and applied AI/LLM**. Companion project to [dotnet-scale-lab](https://github.com/nedal-erekat/dotnet-scale-lab), which covers backend scalability patterns (caching, load balancing) that this project reuses but doesn't re-teach.
 
 See [ROADMAP.md](ROADMAP.md) for the full milestone plan and target architecture.

@@ -2,6 +2,7 @@
 bin/
 obj/
 *.user
+coverage/
 
 # Node / Angular
 node_modules/

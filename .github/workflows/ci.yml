@@ -6,6 +6,15 @@ on:
   pull_request:
     branches: [main]
 
+# Cancel superseded runs on the same branch/PR instead of burning runner minutes on stale pushes.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Least-privilege default; individual jobs don't need to write anything.
+permissions:
+  contents: read
+
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -17,10 +26,27 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ matrix.service }}-${{ hashFiles(format('services/{0}/**/*.csproj', matrix.service)) }}
+          restore-keys: |
+            nuget-${{ runner.os }}-${{ matrix.service }}-
       - name: Restore
         run: dotnet restore services/${{ matrix.service }}
       - name: Test
-        run: dotnet test services/${{ matrix.service }} --configuration Release
+        run: >
+          dotnet test services/${{ matrix.service }} --configuration Release
+          --collect:"XPlat Code Coverage"
+          --results-directory ./coverage/${{ matrix.service }}
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.service }}
+          path: coverage/${{ matrix.service }}
+          retention-days: 7
 
   gateway:
     runs-on: ubuntu-latest
@@ -29,11 +55,21 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-Gateway-${{ hashFiles('services/Gateway/**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-Gateway-
       - name: Build
         run: dotnet build services/Gateway/Gateway.Api --configuration Release
 
   frontend:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [storefront, admin]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -44,12 +80,12 @@ jobs:
       - name: Install
         working-directory: frontend
         run: npm ci
-      - name: Build storefront
+      - name: Unit tests
         working-directory: frontend
-        run: npx ng build storefront
-      - name: Build admin
+        run: npx ng test ${{ matrix.project }} --watch=false --browsers=ChromeHeadlessCI
+      - name: Build
         working-directory: frontend
-        run: npx ng build admin
+        run: npx ng build ${{ matrix.project }}
 
   compose-config:
     runs-on: ubuntu-latest

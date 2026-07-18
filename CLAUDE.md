@@ -76,7 +76,9 @@ Locally, Azure Service Bus is the official [Service Bus emulator](https://learn.
 
 Every ASP.NET Core service (not the OrderProcessing worker — it has no HTTP) exposes `GET /health` via `AddHealthChecks()`/`MapHealthChecks`, added in milestone 5 specifically for AKS liveness/readiness probes. Keep new services doing the same.
 
-`.github/workflows/deploy-azure.yml` and `teardown-azure.yml` are `workflow_dispatch`-only (never on push) since they cost real money — don't change that trigger without being asked.
+`.github/workflows/deploy-azure.yml` and `teardown-azure.yml` are `workflow_dispatch`-only (never on push) since they cost real money — don't change that trigger without being asked. They share a `concurrency: azure-<resource_group>` group with no `cancel-in-progress` (queue, don't cancel — you never want a live Azure deploy/delete interrupted mid-flight).
+
+Post-roadmap addition: `ci.yml` now runs both Angular apps' Karma unit tests too, not just `ng build` — which meant fixing both projects' default-scaffold `app.component.spec.ts` (still asserted the CLI template's `Hello, {title}` from before milestone 8 rewrote both `AppComponent`s). Both `karma.conf.js` files (generated via `ng generate config karma`) define a `ChromeHeadlessCI` launcher (`--no-sandbox --disable-gpu`) — needed for containers/CI runners that execute as root, harmless everywhere else. `.github/workflows/codeql.yml` builds every service by looping `services/*/*.slnx` (there's no root `.sln` tying the eight services together, so CodeQL's C# autobuild can't find one). `.github/dependabot.yml` covers nuget (root, recursive), npm (`/frontend`), one `docker` entry per service's Dockerfile (there are 8), and `github-actions` itself.
 
 Milestone 5's Bicep (`infra/bicep/main.bicep`) has never been run against real Azure — no Azure CLI/credentials were available when it was written. It's reviewed-by-eye, not compiled. Before relying on it, run `az deployment group validate` and expect to fix schema drift, particularly the AKS `sku` block (flagged inline).
 
