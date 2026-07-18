@@ -41,6 +41,7 @@ The Angular storefront now calls everything through the Gateway (`http://localho
 ```
 commerce-app-lab/
 ├── ROADMAP.md            ← milestone plan, target architecture — check first
+├── DESIGN-DECISIONS.md   ← "why this, not the alternative" for every notable architectural call
 ├── docker-compose.yml     ← local infra + services, uncommented as milestones land
 ├── services/              ← one ASP.NET Core microservice per folder, each independently deployable
 │   ├── Catalog/

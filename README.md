@@ -85,6 +85,8 @@ See [infra/bicep/README.md](infra/bicep/README.md) — spin up before a demo, te
 **Why this exists:** a self-directed build to get hands-on with a specific stack — .NET microservices,
 Angular, Azure/AKS, MCP, and applied AI/LLM — the same shape of stack named in a job posting that
 prompted it. Nine milestones, each one a working, demoable increment rather than a big-bang build.
+See [DESIGN-DECISIONS.md](DESIGN-DECISIONS.md) for the "why this, not the alternative" behind every
+notable call below.
 
 **What it demonstrates, milestone by milestone:**
 
