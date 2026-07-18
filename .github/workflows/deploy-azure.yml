@@ -7,7 +7,7 @@ name: Deploy to Azure
 #
 # NOT RUN in this session — no Azure credentials available here. Review before
 # using. Requires repo secrets: AZURE_CREDENTIALS (service principal with
-# Contributor on the target subscription/RG — see azure/login@v2 docs for the
+# Contributor on the target subscription/RG — see azure/login@v3 docs for the
 # JSON shape), SQL_ADMIN_PASSWORD, JWT_KEY, ANTHROPIC_API_KEY.
 
 on:
@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Azure login
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
